@@ -10,9 +10,8 @@ const TabComponent: React.FC<TabComponentProps> = ({
     defaultActiveTab || tabs[0]?.id || ''
   );
 
-  const getTabClasses = (tabId: string, isActive: boolean) => {
+  const getTabClasses = (isActive: boolean) => {
     const baseClasses = "relative px-6 py-3 text-sm font-medium";
-
     switch (variant) {
       case 'pills':
         return `${baseClasses} ${
@@ -39,7 +38,7 @@ const TabComponent: React.FC<TabComponentProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={getTabClasses(tab.id, isActive)}
+              className={getTabClasses(isActive)}
               aria-selected={isActive}
               role="tab"
             >
@@ -85,7 +84,7 @@ const TabComponent: React.FC<TabComponentProps> = ({
       {/* Mobile-friendly indicator */}
       <div className="md:hidden mt-4 flex justify-center">
         <div className="flex space-x-2">
-          {tabs.map((tab, index) => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}

@@ -1,6 +1,6 @@
 import React from 'react';
 import VoteCounter from './VoteCounter';
-import type { TableData, CountTableProps } from '../models/models';
+import type { CountTableProps } from '../models/models';
 
 const CountPollTable: React.FC<CountTableProps> = ({ data }) => {
   return (
@@ -23,7 +23,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data }) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => (
+          {data.map((item) => (
             <tr key={item.id} className="bg-gray-50 border-b border-gray-300 hover:bg-gray-100">
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                 {item.timeSlot}
