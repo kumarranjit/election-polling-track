@@ -59,3 +59,13 @@ export interface GenericTableData {
   id: string;
   [key: string]: any;
 }
+
+// BootAgent Info Interface (displayed above booth tabs)
+export interface BootAgentInfo {
+  bootAgentId: string;
+  baName: string;
+  state: string;
+  district: string;
+  ac: string;
+  boothNumbers: string;
+}
