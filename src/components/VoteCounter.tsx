@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-
-interface VoteCountProps {
-  initialValue?: number;
-  min?: number;
-  max?: number;
-}
+import type { VoteCountProps } from '../models/models';
 
 const VoteCounter: React.FC<VoteCountProps> = ({
   initialValue = 0,

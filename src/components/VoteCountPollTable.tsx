@@ -1,18 +1,6 @@
 import React from 'react';
 import VoteCounter from './VoteCounter';
-
-interface TableData {
-  id: string;
-  timeSlot: string;
-  totalVotes: number;
-  noOfVotesPolled: number;
-  percentage: number | string;
-  action?: string;
-}
-
-interface CountTableProps {
-  data: TableData[];
-}
+import type { TableData, CountTableProps } from '../models/models';
 
 const CountPollTable: React.FC<CountTableProps> = ({ data }) => {
   return (

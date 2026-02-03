@@ -1,20 +1,6 @@
 import TabComponent from "../../components/TabComponent";
 import CountTable from "../../components/VoteCountPollTable";
-
-interface Tab {
-  id: string;
-  label: string;
-  content: React.ReactNode;
-}
-
-interface TableData {
-  id: string;
-  timeSlot: string;
-  totalVotes: number;
-  noOfVotesPolled: number;
-  percentage: number | string;
-  action?: string;
-}
+import type { Tab, TableData } from "../../models/models";
 
 export const BoothDataPage = () => {
   // Table data array with objects

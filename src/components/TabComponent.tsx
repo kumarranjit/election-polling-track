@@ -1,17 +1,5 @@
 import React, { useState } from 'react';
-
-interface Tab {
-  id: string;
-  label: string;
-  content: React.ReactNode;
-  icon?: React.ReactNode; // Optional icon for each tab
-}
-
-interface TabComponentProps {
-  tabs: Tab[];
-  defaultActiveTab?: string;
-  variant?: 'default' | 'pills';
-}
+import type { TabComponentProps } from '../models/models';
 
 const TabComponent: React.FC<TabComponentProps> = ({
   tabs,
