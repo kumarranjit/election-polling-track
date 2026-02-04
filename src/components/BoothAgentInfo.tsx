@@ -6,7 +6,7 @@ export interface BoothAgentInfoProps {
 
 const infoItemsConfig = [
   { label: "BoothAgent ID", key: "bootAgentId" as const, theme: "emerald" as const },
-  { label: "BoothAgent Name", key: "baName" as const, theme: "amber" as const },
+  { label: "BoothAgent Name", key: "bootAgentName" as const, theme: "amber" as const },
   { label: "State", key: "state" as const, theme: "violet" as const },
   { label: "District", key: "district" as const, theme: "rose" as const },
   { label: "AC", key: "ac" as const, theme: "sky" as const },
@@ -52,7 +52,7 @@ const BoothAgentInfo = ({ info }: BoothAgentInfoProps) => {
                   {label}
                 </span>
                 <span className="truncate text-sm font-bold tracking-tight">
-                  {info[key]}
+                {Array.isArray(info[key]) ? info[key].join(", ") : info[key]}
                 </span>
               </div>
             ))}

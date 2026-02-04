@@ -7,6 +7,7 @@ export interface Tab {
   id: string;
   label: string;
   content: React.ReactNode;
+  totalVotes?: number; // Booth-specific total votes (shared across time slots)
   icon?: React.ReactNode; // Optional icon for each tab
 }
 
@@ -27,7 +28,6 @@ export interface VoteCountProps {
 export interface TableData {
   id: string;
   timeSlot: string;
-  totalVotes: number;
   noOfVotesPolled: number;
   percentage: number | string;
   action?: string;
@@ -35,6 +35,7 @@ export interface TableData {
 
 export interface CountTableProps {
   data: TableData[];
+  totalVotes?: number; // Booth-specific total (not per time slot)
 }
 
 // Quantity Counter Interfaces
@@ -60,12 +61,19 @@ export interface GenericTableData {
   [key: string]: any;
 }
 
+// Booth Data Interface
+export interface BoothData {
+  boothNo: number;
+  totalVotes: number;
+  boothName: string;
+}
 // BootAgent Info Interface (displayed above booth tabs)
 export interface BootAgentInfo {
   bootAgentId: string;
-  baName: string;
+  bootAgentName: string;
   state: string;
   district: string;
   ac: string;
-  boothNumbers: string;
+  boothNumbers: string[];
+  boothDatas: BoothData[];
 }

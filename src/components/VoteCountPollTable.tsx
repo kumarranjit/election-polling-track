@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import VoteCounter from './VoteCounter';
 import type { CountTableProps } from '../models/models';
 
-const CountPollTable: React.FC<CountTableProps> = ({ data }) => {
+const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0 }) => {
   const initialRowState = useMemo(() => {
     return data.reduce<Record<string, { noOfVotesPolled: number; percentage: number | string }>>(
       (acc, item) => {
@@ -63,7 +63,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data }) => {
               <td className="px-3 py-3 sm:px-6 sm:py-4">
                 <VoteCounter
                   min={0}
-                  max={item.totalVotes}
+                  max={totalVotes}
                   value={row.noOfVotesPolled}
                   onChange={(v) =>
                     setRows((prev) => ({
@@ -78,7 +78,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data }) => {
                   <button
                     type="button"
                     onClick={() => {
-                      const nextPct = computePercentage(row.noOfVotesPolled, item.totalVotes);
+                      const nextPct = computePercentage(row.noOfVotesPolled, totalVotes);
                       setRows((prev) => ({
                         ...prev,
                         [item.id]: { ...row, percentage: nextPct },
