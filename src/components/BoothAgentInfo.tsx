@@ -33,7 +33,7 @@ const labelThemeClasses = {
 
 const BoothAgentInfo = ({ info }: BoothAgentInfoProps) => {
   return (
-    <div className="group mb-6 relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-emerald-400 via-violet-500 to-amber-400 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.18)] hover:scale-[1.005]">
+    <div className="group mb-8 relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-emerald-400 via-violet-500 to-amber-400 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.18)] hover:scale-[1.005]">
       <div className="relative rounded-[14px] bg-white/95 backdrop-blur-sm dark:bg-slate-900/95">
         <div className="px-5 py-4 sm:px-7 sm:py-5">
           <div className="mb-3 flex items-center gap-2">

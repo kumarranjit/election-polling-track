@@ -7,7 +7,7 @@ function Home() {
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
           Welcome to Vote Polling Tracker
         </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-8">
+        <p className="text-lg md:text-xl text-gray-600 mb-4 md:mb-8">
           Your modern, secure vote polling tracker platform for elections and surveys.
         </p>
         {/* <button className="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
