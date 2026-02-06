@@ -99,16 +99,7 @@ export const BoothDataPage = () => {
     };
   });
 
-  if (loading) {
-    return (
-      <Loading
-        variant="skeleton"
-        fullScreen={false}
-        message="Loading booth data"
-      />
-    );
-  }
-
+  
   if (status === "cancelled") {
     return (
       <div className="text-center space-y-4">
@@ -139,14 +130,23 @@ export const BoothDataPage = () => {
     );
   }
 
-  if (!data || data.length === 0) {
-    return <p className="text-center text-gray-500">No booths found.</p>;
-  }
-
   return (
-    <div className="container mx-auto py-4 md:py-8">
+    <>
+     <div className="container mx-auto py-4 md:py-8">
+     {loading && (
+        <Loading
+          variant="dots"
+          fullScreen={false}
+          message="Loading booth data"
+        />
+      )}
       <BoothAgentInfo info={bootAgentInfo} />
-      <TabComponent tabs={tabs} />
+      {tabs && tabs.length > 0 ? (
+        <TabComponent tabs={tabs} />
+      ) : (
+        <p className="text-center text-gray-500">No booths found.</p>
+      )}
     </div>
+    </>
   );
 };
