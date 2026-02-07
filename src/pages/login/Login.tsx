@@ -148,7 +148,7 @@ function Login() {
                     <Smartphone className="h-5 w-5 text-gray-400" />
                   </div>
                   <div className="absolute inset-y-0 left-10 flex items-center pointer-events-none pl-1">
-                    <span className="">+91</span>
+                    <span>+91</span>
                   </div>
                   <input
                     id="mobile"
@@ -159,14 +159,14 @@ function Login() {
                     onChange={handleMobileChange}
                     disabled={otpSent}
                     placeholder="9876543210"
-                    className={`block w-full pl-[5rem] pr-32 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 placeholder:text-gray-400 disabled:opacity-60 disabled:cursor-not-allowed ${mobileError ? 'border-red-500' : 'border-gray-200'}`}
+                    className={`block w-full pl-[5rem] pr-32 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors bg-white/50 placeholder:text-gray-400 disabled:opacity-60 disabled:cursor-not-allowed ${mobileError ? 'border-red-500' : 'border-gray-200'}`}
                     required
                   />
                   <button
                     type="button"
                     onClick={handleSendOtp}
                     disabled={!isMobileValid || isSendingOtp || otpSent}
-                    className="absolute inset-y-0 right-0 pr-4 px-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors focus:outline-none"
+                    className="absolute inset-y-0 right-0 px-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors focus:outline-none"
                   >
                     {isSendingOtp ? (
                       <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -199,6 +199,7 @@ function Login() {
                   <input
                     id="otp"
                     type={showOtp ? 'text' : 'password'}
+                    inputMode="numeric"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     disabled={!otpSent}
@@ -256,18 +257,18 @@ function Login() {
                     Remember me
                   </label>
                 </div>
-                <button
+                {/* <button
                   type="button"
                   className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors focus:outline-none focus:underline"
                 >
                   Forgot password?
-                </button>
+                </button> */}
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading || !otpSent || !otp.trim()}
-                className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-4 rounded-xl font-medium shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-4 rounded-xl font-medium shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -283,7 +284,7 @@ function Login() {
               </button>
             </form>
 
-            <p className="mt-8 text-center text-sm text-gray-600">
+            {/* <p className="mt-8 text-center text-sm text-gray-600">
               Don't have an account?{' '}
               <button
                 type="button"
@@ -291,7 +292,7 @@ function Login() {
               >
                 Sign up
               </button>
-            </p>
+            </p> */}
           </div>
         </div>
       </div>
