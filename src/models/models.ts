@@ -68,13 +68,14 @@ export interface BoothData {
   boothName: string;
 }
 // BootAgent Info Interface (displayed above booth tabs)
-export interface BootAgentInfo {
+export interface BoothInfo {
+  candidateName:string;
   bootAgentId: string;
   bootAgentName: string;
   state: string;
   district: string;
   ac: string;
-  boothNumbers: string[];
+  boothNumbers?: string[];
 }
 
 // API booth response interfaces (booths list with poll data)
