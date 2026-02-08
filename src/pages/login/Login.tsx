@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Eye, EyeOff, Smartphone, Lock, Github, Send } from 'lucide-react';
+import { Eye, EyeOff, Smartphone, Lock, Send } from 'lucide-react';
 
 function Login() {
   const [showOtp, setShowOtp] = useState(false);
@@ -10,6 +10,23 @@ function Login() {
   const [otpSent, setOtpSent] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [mobileError, setMobileError] = useState('');
+
+  const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/;
+
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setMobileNumber(raw);
+    if (!raw) {
+      setMobileError('');
+    } else if (raw.length < 10) {
+      setMobileError('Enter 10 digit mobile number');
+    } else if (!INDIAN_MOBILE_REGEX.test(raw)) {
+      setMobileError('Indian mobile numbers must start with 6, 7, 8, or 9');
+    } else {
+      setMobileError('');
+    }
+  };
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -21,9 +38,11 @@ function Login() {
     return () => clearInterval(interval);
   }, [timeLeft]);
 
+  const isMobileValid = mobileNumber.length === 10 && INDIAN_MOBILE_REGEX.test(mobileNumber);
+
   const handleSendOtp = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!mobileNumber.trim()) return;
+    if (!isMobileValid) return;
 
     setIsSendingOtp(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -56,7 +75,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
         <div className="hidden lg:flex flex-col justify-center space-y-6 px-12">
           <div className="space-y-4">
@@ -128,21 +147,26 @@ function Login() {
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Smartphone className="h-5 w-5 text-gray-400" />
                   </div>
+                  <div className="absolute inset-y-0 left-10 flex items-center pointer-events-none pl-1">
+                    <span>+91</span>
+                  </div>
                   <input
                     id="mobile"
                     type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
                     value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value)}
+                    onChange={handleMobileChange}
                     disabled={otpSent}
-                    placeholder="+1 (555) 000-0000"
-                    className="block w-full pl-12 pr-32 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 disabled:opacity-60 disabled:cursor-not-allowed"
+                    placeholder="9876543210"
+                    className={`block w-full pl-[5rem] pr-32 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors bg-white/50 placeholder:text-gray-400 disabled:opacity-60 disabled:cursor-not-allowed ${mobileError ? 'border-red-500' : 'border-gray-200'}`}
                     required
                   />
                   <button
                     type="button"
                     onClick={handleSendOtp}
-                    disabled={!mobileNumber.trim() || isSendingOtp || otpSent}
-                    className="absolute inset-y-0 right-0 pr-4 px-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors focus:outline-none"
+                    disabled={!isMobileValid || isSendingOtp || otpSent}
+                    className="absolute inset-y-0 right-0 px-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors focus:outline-none"
                   >
                     {isSendingOtp ? (
                       <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -159,6 +183,9 @@ function Login() {
                     )}
                   </button>
                 </div>
+                {mobileError && (
+                  <p className="text-sm text-red-600 mt-1">{mobileError}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -172,11 +199,12 @@ function Login() {
                   <input
                     id="otp"
                     type={showOtp ? 'text' : 'password'}
+                    inputMode="numeric"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     disabled={!otpSent}
                     placeholder="Enter 6-digit OTP"
-                    className="block w-full pl-12 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="block w-full pl-12 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed"
                     required={otpSent}
                   />
                   <button
@@ -229,18 +257,18 @@ function Login() {
                     Remember me
                   </label>
                 </div>
-                <button
+                {/* <button
                   type="button"
                   className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors focus:outline-none focus:underline"
                 >
                   Forgot password?
-                </button>
+                </button> */}
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading || !otpSent || !otp.trim()}
-                className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-4 rounded-xl font-medium shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-4 rounded-xl font-medium shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -256,41 +284,7 @@ function Login() {
               </button>
             </form>
 
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white/70 text-gray-500">or continue with</span>
-                </div>
-              </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 group"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
-                  <span className="text-sm font-medium text-gray-700">Google</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 group"
-                >
-                  <Github className="w-5 h-5 text-gray-700" />
-                  <span className="text-sm font-medium text-gray-700">GitHub</span>
-                </button>
-              </div>
-            </div>
-
-            <p className="mt-8 text-center text-sm text-gray-600">
+            {/* <p className="mt-8 text-center text-sm text-gray-600">
               Don't have an account?{' '}
               <button
                 type="button"
@@ -298,7 +292,7 @@ function Login() {
               >
                 Sign up
               </button>
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

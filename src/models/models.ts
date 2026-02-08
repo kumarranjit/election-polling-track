@@ -77,3 +77,19 @@ export interface BootAgentInfo {
   boothNumbers: string[];
   boothDatas: BoothData[];
 }
+
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+export interface ApiRequestOptions<TBody = unknown> {
+  method?: HttpMethod;
+  path: string;              
+  body?: TBody;
+  signal?: AbortSignal;
+  headers?: Record<string, string>;
+}
+
+export interface ApiErrorShape {
+  message: string;
+  status?: number;
+  code?: string;
+  details?: unknown;
+}

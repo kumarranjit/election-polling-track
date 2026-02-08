@@ -16,7 +16,7 @@ function Home() {
       </section>
       <BoothDataPage />
       {/* Features Section */}
-      <section className="mb-12">
+      {/* <section className="mb-12">
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
           Features
         </h2>
@@ -40,10 +40,10 @@ function Home() {
             </p>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Content Block */}
-      <section className="mb-12">
+      {/* <section className="mb-12">
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
           How It Works
         </h2>
@@ -73,7 +73,7 @@ function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </>
   );
 }
