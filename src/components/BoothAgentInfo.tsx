@@ -1,7 +1,7 @@
-import type { BootAgentInfo } from "../models/models";
+import type { BoothInfo } from "../models/models";
 
 export interface BoothAgentInfoProps {
-  info: BootAgentInfo;
+  info: BoothInfo;
 }
 
 const infoItemsConfig = [

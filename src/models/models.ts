@@ -75,7 +75,50 @@ export interface BootAgentInfo {
   district: string;
   ac: string;
   boothNumbers: string[];
-  boothDatas: BoothData[];
+}
+
+// API booth response interfaces (booths list with poll data)
+export interface BoothDetails {
+  boothId: number;
+  boothName: string;
+  maleVoters: number;
+  femaleVoters: number;
+  transgenderVoters: number;
+  totalVoters: number;
+}
+
+export interface VotePoll {
+  votepollId: number;
+  paramId: string;
+  paramName: string;
+  timeSlot: string;
+  tsPollVotes: number;
+  createdUser: string;
+}
+
+export interface BoothPollInfo {
+  boothpollId: number;
+  boothDetails: BoothDetails;
+  votePollList: VotePoll[];
+}
+
+export interface BoothAgentInfoRes {
+  agentName: string;
+  agentMobile: string;
+  agentId: number;
+  stateName: string;
+  stateId: number;
+  districtName: string;
+  districtId: number;
+  consName: string;
+  consId: number;
+  electionName: string;
+  electionId: number;
+  partyId: number;
+  partyName: string;
+  candiName: string;
+  candiId: number;
+  booths: BoothPollInfo[];
 }
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
