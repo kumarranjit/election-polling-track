@@ -67,6 +67,21 @@ export const BoothDataPage = () => {
     );
   }
 
+  // Helper function to generate current time slot rounded to the hour
+  const getCurrentTimeSlot = (): string => {
+    const now = new Date();
+    const startHour = now.getHours();
+    const endHour = startHour + 1;
+    
+    const formatTime = (hour: number): string => {
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+      return `${displayHour.toString().padStart(2, '0')}:00 ${period}`;
+    };
+    
+    return `${formatTime(startHour)} - ${formatTime(endHour)}`;
+  };
+
   // Success: all data comes from API response (bootAgentInfoRes)
   const boothInfoForHeader = toBoothInfo(bootAgentInfoRes);
 
@@ -80,8 +95,22 @@ export const BoothDataPage = () => {
         timeSlot: votePoll.timeSlot,
         noOfVotesPolled: votePoll.tsPollVotes,
         percentage: percentage.toFixed(2),
+        isDisabled: true,
+        isCurrentTimeSlot: false
       };
     });
+    
+    // Add new object for current time slot from UI for business logic
+    tableData.push({
+      id: "",
+      timeSlot: getCurrentTimeSlot(),
+      noOfVotesPolled: "" as any,
+      percentage: "0.00",
+      isDisabled: false,
+      isCurrentTimeSlot: true,
+      action: "add"
+    });
+    
 
     return {
       id: String(boothDetails.boothId),
