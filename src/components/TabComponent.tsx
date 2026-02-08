@@ -59,7 +59,7 @@ const TabComponent: React.FC<TabComponentProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="relative min-h-[400px] bg-gradient-to-br from-gray-50 to-white border-b border-gray-200 shadow-inner">
+      <div className="relative min-h-[600px] bg-gradient-to-br from-gray-50 to-white border-b border-gray-200 shadow-inner">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (

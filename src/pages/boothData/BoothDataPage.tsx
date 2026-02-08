@@ -2,8 +2,12 @@ import TabComponent from "../../components/TabComponent";
 import BoothAgentInfo from "../../components/BoothAgentInfo";
 import CountTable from "../../components/VoteCountPollTable";
 import type { Tab, TableData, BootAgentInfo } from "../../models/models";
+import { useBoothData } from "../../hooks/useBoothData";
+import Loading from "../../components/Loading";
 
 export const BoothDataPage = () => {
+  const { data, loading, error, status, refetch } = useBoothData();
+
   const bootAgentInfo: BootAgentInfo = {
     bootAgentId: "200",
     bootAgentName: "Sant",
@@ -41,20 +45,20 @@ export const BoothDataPage = () => {
         <div className="p-4">
           <h3 className="text-lg font-semibold mb-2">Booth Overview</h3>
 
-          {/* Booth specific summary – styled similar to BoothAgentInfo */}
-          <div className="group mb-6 relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-emerald-400 via-violet-500 to-amber-400 shadow-[0_8px_24px_rgb(15,23,42,0.18)]">
-            <div className="relative rounded-[14px] bg-white/95 backdrop-blur-sm dark:bg-slate-900/95">
+          {/* Booth specific summary – styled with different color scheme to differentiate from BoothAgentInfo */}
+          <div className="group mb-6 relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-blue-400 via-cyan-500 to-purple-500 shadow-[0_8px_24px_rgb(15,23,42,0.18)] transition-all duration-300 hover:shadow-[0_8px_32px_rgb(59,130,246,0.25)]">
+            <div className="relative rounded-[14px] bg-gradient-to-br from-slate-50/98 to-blue-50/50 backdrop-blur-sm dark:from-slate-800/98 dark:to-slate-900/95">
               <div className="px-4 py-3 sm:px-5 sm:py-4">
                 <div className="mb-3 flex items-center gap-2">
-                  <span className="h-1 w-6 rounded-full bg-gradient-to-r from-emerald-500 to-violet-500" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                  <span className="h-1 w-6 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
                     Booth Summary
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  <div className="flex flex-col rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50/90 px-4 py-3 text-emerald-800 shadow-sm dark:bg-emerald-950/40 dark:text-emerald-200">
-                    <span className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  <div className="flex flex-col rounded-xl border-l-4 border-l-red-500 bg-blue-50/90 px-4 py-3 text-blue-800 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 dark:bg-blue-950/40 dark:text-blue-200">
+                    <span className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
                       Booth Number
                     </span>
                     <span className="text-sm font-bold tracking-tight">
@@ -62,8 +66,17 @@ export const BoothDataPage = () => {
                     </span>
                   </div>
 
-                  <div className="flex flex-col rounded-xl border-l-4 border-l-amber-500 bg-amber-50/90 px-4 py-3 text-amber-800 shadow-sm dark:bg-amber-950/40 dark:text-amber-200">
-                    <span className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  <div className="flex flex-col rounded-xl border-l-4 border-l-green-500 bg-purple-50/90 px-4 py-3 text-purple-800 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 dark:bg-purple-950/40 dark:text-purple-200">
+                    <span className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-green-600 dark:text-green-400">
+                      Total Votes
+                    </span>
+                    <span className="text-sm font-bold tracking-tight">
+                      {totalVotes}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col rounded-xl border-l-4 border-l-orange-500 bg-cyan-50/90 px-4 py-3 text-cyan-800 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 dark:bg-cyan-950/40 dark:text-cyan-200">
+                    <span className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
                       Booth Name
                     </span>
                     <span className="truncate text-sm font-bold tracking-tight">
@@ -71,14 +84,6 @@ export const BoothDataPage = () => {
                     </span>
                   </div>
 
-                  <div className="flex flex-col rounded-xl border-l-4 border-l-violet-500 bg-violet-50/90 px-4 py-3 text-violet-800 shadow-sm dark:bg-violet-950/40 dark:text-violet-200">
-                    <span className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
-                      Total Votes
-                    </span>
-                    <span className="text-sm font-bold tracking-tight">
-                      {totalVotes}
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -94,10 +99,54 @@ export const BoothDataPage = () => {
     };
   });
 
+  
+  if (status === "cancelled") {
+    return (
+      <div className="text-center space-y-4">
+        <p className="text-gray-600">Request cancelled.</p>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (error) {
+    const msg =
+      (error as any)?.message ?? "Something went wrong while fetching data.";
+    return (
+      <div className="text-center space-y-4">
+        <p className="text-red-600 font-medium">{msg}</p>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto py-4 md:py-8">
+    <>
+     <div className="container mx-auto py-4 md:py-8">
+     {loading && (
+        <Loading
+          variant="dots"
+          fullScreen={false}
+          message="Loading booth data"
+        />
+      )}
       <BoothAgentInfo info={bootAgentInfo} />
-      <TabComponent tabs={tabs} />
+      {tabs && tabs.length > 0 ? (
+        <TabComponent tabs={tabs} />
+      ) : (
+        <p className="text-center text-gray-500">No booths found.</p>
+      )}
     </div>
+    </>
   );
 };
