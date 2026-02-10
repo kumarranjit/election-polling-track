@@ -74,6 +74,7 @@ export interface BoothInfo {
   candidateName:string;
   bootAgentId: string;
   bootAgentName: string;
+  agentMobile: string;
   state: string;
   district: string;
   ac: string;

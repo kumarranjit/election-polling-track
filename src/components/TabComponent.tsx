@@ -4,14 +4,14 @@ import type { TabComponentProps } from '../models/models';
 const TabComponent: React.FC<TabComponentProps> = ({
   tabs,
   defaultActiveTab,
-  variant = 'default'
+  variant = 'pills'
 }) => {
   const [activeTab, setActiveTab] = useState<string>(
     defaultActiveTab || tabs[0]?.id || ''
   );
 
   const getTabClasses = (isActive: boolean) => {
-    const baseClasses = "relative px-6 py-3 text-sm font-medium";
+    const baseClasses = "relative px-4 py-3 text-sm font-medium";
     switch (variant) {
       case 'pills':
         return `${baseClasses} ${

@@ -106,7 +106,7 @@ function Login() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+    <div className="bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-6xl lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
         <div className="hidden lg:flex flex-col justify-center space-y-6 px-12">
           <div className="space-y-4">
@@ -156,7 +156,7 @@ function Login() {
         </div>
 
         <div className="w-full max-w-md mx-auto">
-          <div className="backdrop-blur-xl bg-white/70 rounded-3xl shadow-2xl shadow-indigo-500/10 border border-white/20 p-8 lg:p-10">
+          <div className="bg-white rounded-3xl shadow-lg shadow-slate-900/5 border border-slate-200 p-8 lg:p-10">
             <div className="lg:hidden mb-8 text-center">
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg mb-4">
                 <Lock className="w-7 h-7 text-white" />
