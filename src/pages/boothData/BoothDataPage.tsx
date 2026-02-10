@@ -14,6 +14,7 @@ import type { Tab, TableData } from "../../models/models";
 import Loading from "../../components/Loading";
 import { useBoothData } from "../../hooks/useBoothData";
 import { toBoothInfo } from "../../lib/mapBoothAgentInfo";
+// import BoothHeader from "../../components/BoothHeader";
 
 /** Shared retry block for cancelled and error states */
 function RetryBlock({ message, onRetry }: { message: string; onRetry: () => void }) {
@@ -170,7 +171,8 @@ export const BoothDataPage = () => {
 
   return (
     <div className="container mx-auto py-4 md:py-8">
-      <BoothAgentInfo info={boothInfoForHeader} />
+      {/* <BoothHeader info={boothInfoForHeader} partyName={bootAgentInfoRes.partyName} /> */}
+      <BoothAgentInfo info={boothInfoForHeader} partyName={bootAgentInfoRes.partyName} />
       <TabComponent tabs={tabs} />
     </div>
   );

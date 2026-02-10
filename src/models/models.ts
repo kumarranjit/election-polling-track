@@ -77,6 +77,7 @@ export interface BoothInfo {
   state: string;
   district: string;
   ac: string;
+  partyName: string;
   boothNumbers?: string[];
 }
 

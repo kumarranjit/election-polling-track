@@ -8,12 +8,12 @@ import type { BoothAgentInfoRes, BoothInfo } from "../models/models";
 
 export function toBoothInfo(res: BoothAgentInfoRes): BoothInfo {
   return {
-    bootAgentId: String(res.agentId),
     bootAgentName: res.agentName,
     state: res.stateName,
     district: res.districtName,
     ac: res.consName,
     candidateName: res.candiName,
+    partyName: res.partyName,
     boothNumbers: res.booths.map((b) => String(b.boothDetails.boothId)),
   };
 }

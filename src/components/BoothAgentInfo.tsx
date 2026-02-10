@@ -1,7 +1,10 @@
 import type { BoothInfo } from "../models/models";
+import { getPartyLogoSrc } from "../lib/partyLogos";
 
 export interface BoothAgentInfoProps {
   info: BoothInfo;
+  /** Optional party label shown like: Candidate (PARTY) in the header chip */
+  partyName?: string;
 }
 
 const infoItemsConfig = [
@@ -31,16 +34,28 @@ const labelThemeClasses = {
   indigo: "text-indigo-600 dark:text-indigo-400",
 } as const;
 
-const BoothAgentInfo = ({ info }: BoothAgentInfoProps) => {
+const BoothAgentInfo = ({ info, partyName }: BoothAgentInfoProps) => {
+  const candidateHeading = partyName?.trim()
+    ? `${info.candidateName} (${partyName.trim()})`
+    : info.candidateName;
+  const partyLogoSrc = getPartyLogoSrc(partyName);
+
   return (
-    <div className="group mb-8 relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-emerald-400 via-violet-500 to-amber-400 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.18)] hover:scale-[1.005]">
+    <div className="group mb-8 relative overflow-hidden rounded-2xl p-[2px] from-emerald-400 via-violet-500 to-amber-400 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.18)] hover:scale-[1.005]">
       <div className="relative rounded-[14px] bg-white/95 backdrop-blur-sm dark:bg-slate-900/95">
         <div className="px-5 py-4 sm:px-7 sm:py-5">
           <div className="mb-3 flex items-center gap-2">
-            <span className="h-1 w-8 rounded-full bg-gradient-to-r from-emerald-500 to-violet-500" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-              Booth Agent
+            <span className="flex-1 truncate text-xs font-semibold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-200">
+              {candidateHeading}
             </span>
+            {partyLogoSrc && (
+              <img
+                src={partyLogoSrc}
+                alt={partyName ? `${partyName} logo` : "Party logo"}
+                className="shrink-0 object-contain"
+                style={{ width: "15%", height: "80%" }}
+              />
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {infoItemsConfig.map(({ label, key, theme }) => (
