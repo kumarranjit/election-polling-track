@@ -10,10 +10,11 @@
 import TabComponent from "../../components/TabComponent";
 import BoothAgentInfo from "../../components/BoothAgentInfo";
 import CountTable from "../../components/VoteCountPollTable";
-import type { Tab, TableData } from "../../models/models";
+import type { BoothAgentInfoRes, BoothPollInfo, Tab, TableData } from "../../models/models";
 import Loading from "../../components/Loading";
 import { useBoothData } from "../../hooks/useBoothData";
 import { toBoothInfo } from "../../lib/mapBoothAgentInfo";
+import { request } from "../../api/client";
 
 /** Shared retry block for cancelled and error states */
 function RetryBlock({ message, onRetry }: { message: string; onRetry: () => void }) {
@@ -67,19 +68,76 @@ export const BoothDataPage = () => {
     );
   }
 
-  // Helper function to generate current time slot rounded to the hour
+  const buildSavePayload = (
+    agentInfo: BoothAgentInfoRes,
+    booth: BoothPollInfo,
+    timeSlot: string,
+    tsPollVotes: number
+  ): BoothAgentInfoRes => {
+    const { stateId, districtId, consId } = agentInfo;
+    const boothId = booth.boothDetails.boothId;
+    const paramId = `${stateId}_${districtId}_${consId}_${boothId}`;
+
+    return {
+      ...agentInfo,
+      booths: [
+        {
+          boothpollId: booth.boothpollId,
+          boothDetails: booth.boothDetails,
+          votePollList: [
+            {
+              votepollId: 0,
+              paramId,
+              paramName: "",
+              timeSlot,
+              tsPollVotes,
+              createdUser: agentInfo.agentMobile,
+            },
+          ],
+        },
+      ],
+    };
+  };
+
+  const SAVE_VOTE_POLL_PATH = "/addSingleVote";
+
+  // Helper function to generate current time slot based on min/max bounds.
+  // - Uses 1 hour as a single slot (e.g. 7 AM - 8 AM).
+  // - End time will never be greater than the current hour or the max end hour.
   const getCurrentTimeSlot = (): string => {
     const now = new Date();
-    const startHour = now.getHours();
-    const endHour = startHour + 1;
-    
+    const currentHour = now.getHours(); // 0–23
+
+    // Boundaries for polling time slots (in 24h format)
+    const minStartHour = 7;  // 07:00 (7 AM)
+    const maxEndHour = 19;   // 19:00 (7 PM) → last slot is 18–19
+
+    // Determine the effective latest possible end hour:
+    //  - must be <= currentHour (slot already completed)
+    //  - must be <= maxEndHour
+    let slotEndHour = Math.min(currentHour, maxEndHour);
+
+    // Ensure we are at least one hour after the minimum start.
+    // If current time is before polling starts, clamp to first slot.
+    if (slotEndHour <= minStartHour) {
+      slotEndHour = minStartHour + 1;
+    }
+
+    let slotStartHour = slotEndHour - 1;
+
+    // Extra safety: never start before minStartHour
+    if (slotStartHour < minStartHour) {
+      slotStartHour = minStartHour;
+      slotEndHour = minStartHour + 1;
+    }
+
     const formatTime = (hour: number): string => {
-      const period = hour >= 12 ? 'PM' : 'AM';
-      const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-      return `${displayHour.toString().padStart(2, '0')}:00 ${period}`;
+      const period = hour >= 12 ? "PM" : "AM";
+      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+      return `${displayHour} ${period}`; // e.g. "7 AM"
     };
-    
-    return `${formatTime(startHour)} - ${formatTime(endHour)}`;
+
+    return `${formatTime(slotStartHour)} - ${formatTime(slotEndHour)}`; // e.g. "7 AM - 8 AM"
   };
 
   // Success: all data comes from API response (bootAgentInfoRes)
@@ -119,7 +177,41 @@ export const BoothDataPage = () => {
       content: (
         <div className="p-4">
           {totalVotes ? (
-            <CountTable data={tableData} totalVotes={totalVotes} />
+            <CountTable
+              data={tableData}
+              totalVotes={totalVotes}
+              onAddClick={async ({ timeSlot, votes }) => {
+                if (!bootAgentInfoRes) return;
+                const payload = buildSavePayload(
+                  bootAgentInfoRes,
+                  boothData as BoothPollInfo,
+                  timeSlot,
+                  votes
+                );
+
+                try {
+                  const result = await request<unknown>({
+                    method: "POST",
+                    path: SAVE_VOTE_POLL_PATH,
+                    body: payload,
+                  });
+
+                  if (result.ok) {
+                    // Happy path: refresh data from server so UI reflects latest poll
+                    await refetch();
+                  } else {
+                    const message =
+                      result.error?.message ||
+                      "Failed to save vote poll. Please try again.";
+                    window.alert(message);
+                    console.error("Save vote poll failed:", result);
+                  }
+                } catch (err) {
+                  window.alert("Network error while saving vote poll. Please try again.");
+                  console.error("Save vote poll error:", err);
+                }
+              }}
+            />
           ) : (
             <p>No polling results for this booth.</p>
           )}

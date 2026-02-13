@@ -38,6 +38,12 @@ export interface TableData {
 export interface CountTableProps {
   data: TableData[];
   totalVotes?: number; // Booth-specific total (not per time slot)
+  /**
+   * Optional callback invoked when the "Add" button is clicked
+   * for the current time slot row. Gives the time slot label and
+   * the number of votes entered in the UI.
+   */
+  onAddClick?: (args: { timeSlot: string; votes: number }) => void;
 }
 
 // Quantity Counter Interfaces

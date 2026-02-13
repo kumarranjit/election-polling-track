@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import VoteCounter from './VoteCounter';
 import type { CountTableProps } from '../models/models';
 
-const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0 }) => {
+const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAddClick }) => {
   const initialRowState = useMemo(() => {
     return data.reduce<Record<string, { noOfVotesPolled: number; percentage: number | string }>>(
       (acc, item) => {
@@ -85,6 +85,13 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0 }) => 
                           ...prev,
                           [item.id]: { ...row, percentage: nextPct },
                         }));
+
+                        if (onAddClick) {
+                          onAddClick({
+                            timeSlot: item.timeSlot,
+                            votes: row.noOfVotesPolled,
+                          });
+                        }
                       }}
                       className="inline-flex min-h-8 min-w-8 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium leading-[0.75] text-white shadow-sm transition-colors active:scale-[0.98] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 touch-manipulation"
                       aria-label="Add vote count"
