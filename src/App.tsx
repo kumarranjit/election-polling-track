@@ -14,8 +14,8 @@ function App() {
     <div className="min-h-screen flex flex-col">
       <Header />
        {/* Hero Section */}
-      <main className="flex-1 pt-16 pb-16 bg-gradient-to-br from-blue-50 to-indigo-100"> {/* Adjust pt for header height, pb for footer */}
-        <div className="container mx-auto px-4 py-8">
+      <main className="flex-1 pt-16 pb-16 bg-white"> {/* Adjust pt for header height, pb for footer */}
+        <div className="container mx-auto px-4 pt-4 pb-8">
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/home" element={<Home />} />

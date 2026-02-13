@@ -1,26 +1,17 @@
-import type { BootAgentInfo } from "../models/models";
+import type { BoothInfo } from "../models/models";
+import { getPartyLogoSrc } from "../lib/partyLogos";
 
 export interface BoothAgentInfoProps {
-  info: BootAgentInfo;
+  info: BoothInfo;
+  /** Optional party label shown like: Candidate (PARTY) in the header chip */
+  partyName?: string;
 }
 
 const infoItemsConfig = [
-  { label: "BoothAgent ID", key: "bootAgentId" as const, theme: "emerald" as const },
-  { label: "BoothAgent Name", key: "bootAgentName" as const, theme: "amber" as const },
   { label: "State", key: "state" as const, theme: "violet" as const },
   { label: "District", key: "district" as const, theme: "rose" as const },
-  { label: "AC", key: "ac" as const, theme: "sky" as const },
-  { label: "Booth Numbers", key: "boothNumbers" as const, theme: "indigo" as const },
+  { label: "Constituency ", key: "ac" as const, theme: "sky" as const },
 ] as const;
-
-const themeClasses = {
-  emerald: "border-l-emerald-500 bg-emerald-50/90 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200",
-  amber: "border-l-amber-500 bg-amber-50/90 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200",
-  violet: "border-l-violet-500 bg-violet-50/90 text-violet-800 dark:bg-violet-950/40 dark:text-violet-200",
-  rose: "border-l-rose-500 bg-rose-50/90 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200",
-  sky: "border-l-sky-500 bg-sky-50/90 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200",
-  indigo: "border-l-indigo-500 bg-indigo-50/90 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-200",
-} as const;
 
 const labelThemeClasses = {
   emerald: "text-emerald-600 dark:text-emerald-400",
@@ -31,35 +22,62 @@ const labelThemeClasses = {
   indigo: "text-indigo-600 dark:text-indigo-400",
 } as const;
 
-const BoothAgentInfo = ({ info }: BoothAgentInfoProps) => {
+const BoothAgentInfo = ({ info, partyName }: BoothAgentInfoProps) => {
+  const candidateHeading = partyName?.trim()
+    ? `${info.candidateName} (${partyName.trim()})`
+    : info.candidateName;
+  const partyLogoSrc = getPartyLogoSrc(partyName);
+
   return (
-    <div className="group mb-8 relative overflow-hidden rounded-2xl p-[2px] bg-gradient-to-br from-emerald-400 via-violet-500 to-amber-400 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.18)] hover:scale-[1.005]">
-      <div className="relative rounded-[14px] bg-white/95 backdrop-blur-sm dark:bg-slate-900/95">
-        <div className="px-5 py-4 sm:px-7 sm:py-5">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="h-1 w-8 rounded-full bg-gradient-to-r from-emerald-500 to-violet-500" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-              Booth Agent
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {infoItemsConfig.map(({ label, key, theme }) => (
-              <div
-                key={key}
-                className={`flex flex-col rounded-xl border-l-4 px-4 py-3 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${themeClasses[theme]}`}
-              >
-                <span className={`mb-0.5 text-[10px] font-bold uppercase tracking-wider ${labelThemeClasses[theme]}`}>
-                  {label}
-                </span>
-                <span className="truncate text-sm font-bold tracking-tight">
-                {Array.isArray(info[key]) ? info[key].join(", ") : info[key]}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+    <section className="mb-6 w-full">
+      {/* Header (no card) */}
+      <div className="flex items-center gap-3 px-1 py-1 sm:px-0">
+        <span className="h-9 w-1 rounded-full bg-gradient-to-b from-emerald-500 to-violet-500" />
+        <p className="min-w-0 flex-1 truncate text-xs font-extrabold uppercase tracking-[0.18em] text-slate-800 dark:text-slate-100">
+          {candidateHeading}
+        </p>
+        {partyLogoSrc && (
+          <img
+            src={partyLogoSrc}
+            alt={partyName ? `${partyName} logo` : "Party logo"}
+            className="shrink-0 object-contain opacity-90"
+            style={{ width: "15%", height: "80%" }}
+          />
+        )}
       </div>
-    </div>
+
+      {/* Details (lightweight strip, no border/background) */}
+      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-4 px-1 sm:grid-cols-3 sm:px-0">
+        {infoItemsConfig.map(({ label, key, theme }) => (
+          <div key={key} className="min-w-0">
+            <dt className={`text-[10px] font-bold uppercase tracking-wider ${labelThemeClasses[theme]}`}>
+              {label}
+            </dt>
+            <dd className="mt-1 truncate text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              {Array.isArray(info[key]) ? info[key].join(", ") : info[key]}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      {/* Agent name + mobile single line, centered (mobile only) */}
+      <div className="mt-3 pt-2 border-t border-dashed border-slate-200 sm:hidden">
+        <p className="text-center text-sm font-semibold tracking-tight text-slate-800">
+          {info.bootAgentName}
+          {info.agentMobile && (
+            <>
+              <span className="mx-2 text-slate-300">|</span>
+              <a
+                href={`tel:${info.agentMobile}`}
+                className="text-violet-700 hover:text-violet-800 tabular-nums"
+              >
+                {info.agentMobile}
+              </a>
+            </>
+          )}
+        </p>
+      </div>
+    </section>
   );
 };
 

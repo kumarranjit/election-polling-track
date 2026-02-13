@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import VoteCounter from './VoteCounter';
 import type { CountTableProps } from '../models/models';
 
-const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0 }) => {
+const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAddClick }) => {
   const initialRowState = useMemo(() => {
     return data.reduce<Record<string, { noOfVotesPolled: number; percentage: number | string }>>(
       (acc, item) => {
@@ -36,7 +36,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0 }) => 
               Votes polled
             </th>
             <th scope="col" className="px-3 py-3 sm:px-6 sm:py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-700 bg-blue-100/80 sm:text-sm">
-              Action
+              Action (OR) %
             </th>
           </tr>
         </thead>
@@ -55,9 +55,9 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0 }) => 
                   <span className="font-medium text-gray-900 whitespace-nowrap">
                     {item.timeSlot}
                   </span>
-                  <span className="inline-flex w-fit self-center items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
+                  {/* <span className="inline-flex w-fit self-center items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
                     {percentageText}
-                  </span>
+                  </span> */}
                 </div>
               </th>
               <td className="px-3 py-3 sm:px-6 sm:py-4">
@@ -65,6 +65,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0 }) => 
                   min={0}
                   max={totalVotes}
                   value={row.noOfVotesPolled}
+                  disabled={item.isDisabled}
                   onChange={(v) =>
                     setRows((prev) => ({
                       ...prev,
@@ -75,32 +76,45 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0 }) => 
               </td>
               <td className="px-3 py-3 sm:px-6 sm:py-4 text-center">
                 <div className="flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const nextPct = computePercentage(row.noOfVotesPolled, totalVotes);
-                      setRows((prev) => ({
-                        ...prev,
-                        [item.id]: { ...row, percentage: nextPct },
-                      }));
-                    }}
-                    className="inline-flex min-h-8 min-w-8 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium leading-[0.75] text-white shadow-sm transition-colors active:scale-[0.98] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 touch-manipulation"
-                    aria-label="Add vote count"
-                  >
-                    <svg
-                      className="h-4 w-4 shrink-0"
-                      aria-hidden
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                  {item.action === "add" ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextPct = computePercentage(row.noOfVotesPolled, totalVotes);
+                        setRows((prev) => ({
+                          ...prev,
+                          [item.id]: { ...row, percentage: nextPct },
+                        }));
+
+                        if (onAddClick) {
+                          onAddClick({
+                            timeSlot: item.timeSlot,
+                            votes: row.noOfVotesPolled,
+                          });
+                        }
+                      }}
+                      className="inline-flex min-h-8 min-w-8 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium leading-[0.75] text-white shadow-sm transition-colors active:scale-[0.98] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 touch-manipulation"
+                      aria-label="Add vote count"
                     >
-                      <path d="M12 5v14M5 12h14" />
-                    </svg>
-                    <span>Add</span>
-                  </button>
+                      <svg
+                        className="h-4 w-4 shrink-0"
+                        aria-hidden
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                      <span>Add</span>
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
+                      {percentageText}
+                    </span>
+                  )}
                 </div>
               </td>
             

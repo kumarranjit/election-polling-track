@@ -1,136 +1,116 @@
-// src/hooks/useApi.ts
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ApiErrorShape } from '../models/models';
+/**
+ * Centralized GET hook for any API endpoint.
+ *
+ * - Handles loading, error, and success state.
+ * - Supports request cancellation when path changes or component unmounts.
+ * - Optional: skip first request (enabled: false) or refetch on window focus.
+ *
+ * Use this for read-only data. For POST/PUT/DELETE, use the API client's request() or a dedicated mutation hook.
+ */
 
-export interface UseApiOptions<TResponse, TBody = unknown> {
-  /** Function that calls apiRequest with correct path/method/body */
-  requestFn: (signal: AbortSignal, body?: TBody) => Promise<TResponse>;
-  /** Auto run once on mount */
-  auto?: boolean;
-  /** Optional initial data */
-  initialData?: TResponse | null;
-  /** Called when request succeeds */
-  onSuccess?: (data: TResponse) => void;
-  /** Called when request fails */
-  onError?: (error: ApiErrorShape | Error) => void;
+import { useCallback, useEffect, useRef, useState } from "react";
+import { request } from "../api/client";
+import type { ApiErrorShape } from "../models/models";
+import type { ApiStatus, UseApiResult } from "../api/types";
+
+function initialState<T>(): {
+  data: T | null;
+  error: ApiErrorShape | null;
+  status: ApiStatus;
+} {
+  return { data: null, error: null, status: "idle" };
 }
 
-export interface UseApiState<TResponse> {
-  data: TResponse | null;
-  loading: boolean;
-  error: ApiErrorShape | Error | null;
-  status: "idle" | "loading" | "success" | "error" | "cancelled";
+export interface UseApiParams {
+  /** Path relative to VITE_API_BASE_URL (e.g. "booth-agent" or "users/1"). */
+  path: string;
+  /** When false, no request is sent until it becomes true. Useful when waiting for a required param. */
+  enabled?: boolean;
+  /** When true, refetch when the window regains focus. */
+  refetchOnWindowFocus?: boolean;
 }
 
-export interface UseApiReturn<TResponse, TBody = unknown>
-  extends UseApiState<TResponse> {
-  /** Trigger request; if body is needed, pass here */
-  run: (body?: TBody) => Promise<void>;
-  /** Cancel in-flight request (if any) */
-  cancel: () => void;
-  /** Alias for run, more semantic when used for reload buttons */
-  refetch: () => Promise<void>;
-}
+/**
+ * Fetches GET path on mount (and when path/enabled change). Returns data, loading, error, refetch, reset.
+ */
+export function useApi<T>(params: UseApiParams): UseApiResult<T> {
+  const { path, enabled = true, refetchOnWindowFocus = false } = params;
+  const [state, setState] = useState(initialState<T>());
+  const abortRef = useRef<AbortController | null>(null);
+  const pathRef = useRef(path);
 
-export function useApi<TResponse, TBody = unknown>(
-  options: UseApiOptions<TResponse, TBody>
-): UseApiReturn<TResponse, TBody> {
-  const { requestFn, auto = true, initialData = null, onSuccess, onError } =
-    options;
+  const fetchData = useCallback(async () => {
+    if (!path?.trim()) {
+      setState(initialState<T>());
+      return;
+    }
 
-  const [state, setState] = useState<UseApiState<TResponse>>({
-    data: initialData,
-    loading: auto, // if auto, we consider loading initially
-    error: null,
-    status: auto ? "loading" : "idle",
-  });
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+    setState((s) => ({ ...s, status: "loading", error: null }));
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const isMountedRef = useRef(true);
+    const result = await request<T>({
+      method: "GET",
+      path,
+      signal: abortRef.current.signal,
+    });
 
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-      abortControllerRef.current?.abort();
-    };
-  }, []);
+    if (abortRef.current?.signal.aborted) {
+      setState((s) => ({ ...s, status: "cancelled" }));
+      return;
+    }
 
-  const cancel = useCallback(() => {
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = null;
-    setState((prev) => ({
-      ...prev,
-      loading: false,
-      status: "cancelled",
-    }));
-  }, []);
-
-  const run = useCallback(
-    async (body?: TBody) => {
-      // Cancel any previous request
-      abortControllerRef.current?.abort();
-
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-      const { signal } = controller;
-
-      setState((prev) => ({
-        ...prev,
-        loading: true,
-        error: null,
-        status: "loading",
-      }));
-
-      try {
-        const data = await requestFn(signal, body);
-
-        if (!isMountedRef.current || signal.aborted) return;
-
-        setState({
-          data,
-          loading: false,
-          error: null,
-          status: "success",
-        });
-
-        onSuccess?.(data);
-      } catch (err: any) {
-        if (signal.aborted || !isMountedRef.current) {
-          // Treat as cancellation, do not call onError
-          return;
-        }
-
-        setState((prev) => ({
-          ...prev,
-          loading: false,
-          error: err,
-          status: "error",
-        }));
-
-        onError?.(err);
-      }
-    },
-    [requestFn, onSuccess, onError]
-  );
-
-  const refetch = useCallback(async () => {
-    await run();
-  }, [run]);
-
-  // Run on mount if auto
-  useEffect(() => {
-    if (auto) {
-      run().catch(() => {
-        // errors already handled in run
+    if (result.ok) {
+      setState({ data: result.data, error: null, status: "success" });
+    } else {
+      setState({
+        data: null,
+        error: result.error ?? { message: "Unknown error" },
+        status: "error",
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auto]);
+  }, [path]);
 
+  const refetch = useCallback(async () => {
+    await fetchData();
+  }, [fetchData]);
+
+  const reset = useCallback(() => {
+    abortRef.current?.abort();
+    setState(initialState<T>());
+  }, []);
+
+  // Keep pathRef in sync for refetch-on-focus
+  useEffect(() => {
+    pathRef.current = path;
+  }, [path]);
+
+  // Initial fetch and cleanup on path change / unmount
+  useEffect(() => {
+    if (!enabled) return;
+    fetchData();
+    return () => abortRef.current?.abort();
+  }, [enabled, path, fetchData]);
+
+  // Optional: refetch when user returns to the tab
+  useEffect(() => {
+    if (!refetchOnWindowFocus || !enabled) return;
+    const onFocus = () => {
+      if (pathRef.current) refetch();
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refetchOnWindowFocus, enabled, refetch]);
+
+  const { status } = state;
   return {
     ...state,
-    run,
-    cancel,
+    status,
+    isLoading: status === "loading",
+    isError: status === "error",
+    isSuccess: status === "success",
+    isIdle: status === "idle",
     refetch,
+    reset,
   };
 }

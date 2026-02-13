@@ -14,7 +14,7 @@ COPY . .
 
 # API base URL must be set at build time (Vite bakes it into the bundle).
 # Pass with: docker build --build-arg VITE_API_BASE_URL=https://your-api.com
-ARG VITE_API_BASE_URL=http://electionbooth.ap-south-1.elasticbeanstalk.com
+ARG VITE_API_BASE_URL=http://electionbooth.ap-south-1.elasticbeanstalk.com/api/election
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN npm run build

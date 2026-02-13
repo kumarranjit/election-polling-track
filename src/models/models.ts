@@ -30,12 +30,20 @@ export interface TableData {
   timeSlot: string;
   noOfVotesPolled: number;
   percentage: number | string;
+  isDisabled: boolean;
+  isCurrentTimeSlot?: boolean
   action?: string;
 }
 
 export interface CountTableProps {
   data: TableData[];
   totalVotes?: number; // Booth-specific total (not per time slot)
+  /**
+   * Optional callback invoked when the "Add" button is clicked
+   * for the current time slot row. Gives the time slot label and
+   * the number of votes entered in the UI.
+   */
+  onAddClick?: (args: { timeSlot: string; votes: number }) => void;
 }
 
 // Quantity Counter Interfaces
@@ -68,14 +76,60 @@ export interface BoothData {
   boothName: string;
 }
 // BootAgent Info Interface (displayed above booth tabs)
-export interface BootAgentInfo {
+export interface BoothInfo {
+  candidateName:string;
   bootAgentId: string;
   bootAgentName: string;
+  agentMobile: string;
   state: string;
   district: string;
   ac: string;
-  boothNumbers: string[];
-  boothDatas: BoothData[];
+  partyName: string;
+  boothNumbers?: string[];
+}
+
+// API booth response interfaces (booths list with poll data)
+export interface BoothDetails {
+  boothId: number;
+  boothName: string;
+  maleVoters: number;
+  femaleVoters: number;
+  transgenderVoters: number;
+  totalVoters: number;
+}
+
+export interface VotePoll {
+  votepollId: number;
+  paramId: string;
+  paramName: string;
+  timeSlot: string;
+  tsPollVotes: number;
+  createdUser: string;
+}
+
+export interface BoothPollInfo {
+  boothpollId: number;
+  boothDetails: BoothDetails;
+  votePollList: VotePoll[];
+}
+
+export interface BoothAgentInfoRes {
+  agentName: string;
+  agentMobile: string;
+  agentId: number;
+  stateName: string;
+  stateId: number;
+  districtName: string;
+  districtId: number;
+  consName: string;
+  consId: number;
+  electionName: string;
+  electionId: number;
+  partyId: number;
+  partyName: string;
+  candiName: string;
+  candiId: number;
+  booths: BoothPollInfo[];
 }
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";

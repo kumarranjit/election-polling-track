@@ -58,16 +58,29 @@ const Header: React.FC = () => {
             : 'bg-transparent backdrop-blur-sm'
         }`}
       >
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between relative">
           {/* Logo / Brand */}
           <div className="flex items-center">
-            <a href="/" className="text-xl md:text-2xl font-bold text-gray-900 font-sans">
-              ElectionPoll
+            <a href="/" className="flex items-center">
+              <img
+                src="/logoicon.png"
+                alt="VotePolTracker logo"
+                className="h-12 w-12 md:h-16 md:w-16 rounded-md object-contain"
+              />
             </a>
           </div>
 
+          {/* Center title */}
+          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
+            <span className="text-sm font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500">
+              2026 TN Assembly
+            </span>
+          </div>
+
+          
+
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-8 ml-auto">
             <Link
               to="/home"
               className="text-gray-700 hover:text-blue-600 transition-colors duration-200 relative group"
@@ -85,7 +98,7 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Desktop CTA and Avatar */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4 ml-6">
             {/* <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
               Get Started
             </button> */}

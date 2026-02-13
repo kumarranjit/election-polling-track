@@ -4,6 +4,7 @@ import type { VoteCountProps } from '../models/models';
 type VoteCounterProps = VoteCountProps & {
   value?: number;
   onChange?: (value: number) => void;
+  disabled?: boolean;
 };
 
 const VoteCounter: React.FC<VoteCounterProps> = ({
@@ -12,6 +13,7 @@ const VoteCounter: React.FC<VoteCounterProps> = ({
   max = 1500,
   value,
   onChange,
+  disabled = false,
 }) => {
   const isControlled = useMemo(() => value !== undefined, [value]);
   const [votes, setVotes] = useState<number>(value ?? initialValue);
@@ -77,7 +79,8 @@ const VoteCounter: React.FC<VoteCounterProps> = ({
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
-          className="shrink-0 w-16 min-w-[3.5rem] h-8 mx-2 px-2 text-center text-base font-semibold text-gray-800 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors placeholder:text-gray-400"
+          disabled={disabled}
+          className="shrink-0 w-16 min-w-[3.5rem] h-8 mx-2 px-2 text-center text-base font-semibold text-gray-800 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors placeholder:text-gray-400 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:border-gray-200"
           placeholder="0"
           aria-label="Vote count"
         />
