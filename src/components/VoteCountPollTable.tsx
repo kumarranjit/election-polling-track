@@ -6,7 +6,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
   const initialRowState = useMemo(() => {
     return data.reduce<Record<string, { noOfVotesPolled: number; percentage: number | string }>>(
       (acc, item) => {
-        acc[item.id] = {
+        acc[item.timeSlotId] = {
           noOfVotesPolled: item.noOfVotesPolled,
           percentage: item.percentage,
         };
@@ -42,18 +42,18 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {data.map((item) => {
-            const row = rows[item.id] ?? {
+            const row = rows[item.timeSlotId] ?? {
               noOfVotesPolled: item.noOfVotesPolled,
               percentage: item.percentage,
             };
             const percentageText = `${String(row.percentage).replace(/%$/, '')}%`;
 
             return (
-              <tr key={item.id} className="bg-gray-50/50 hover:bg-gray-50 transition-colors">
+              <tr key={item.timeSlotId} className="bg-gray-50/50 hover:bg-gray-50 transition-colors">
               <th scope="row" className="px-3 py-3 sm:px-6 sm:py-4">
                 <div className="flex flex-col gap-1">
                   <span className="font-medium text-gray-900 whitespace-nowrap">
-                    {item.timeSlot}
+                    {item.timeSlotLabel}
                   </span>
                   {/* <span className="inline-flex w-fit self-center items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
                     {percentageText}
@@ -69,7 +69,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                   onChange={(v) =>
                     setRows((prev) => ({
                       ...prev,
-                      [item.id]: { ...row, noOfVotesPolled: v },
+                      [item.timeSlotId]: { ...row, noOfVotesPolled: v },
                     }))
                   }
                 />
@@ -83,12 +83,12 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                         const nextPct = computePercentage(row.noOfVotesPolled, totalVotes);
                         setRows((prev) => ({
                           ...prev,
-                          [item.id]: { ...row, percentage: nextPct },
+                          [item.timeSlotId]: { ...row, percentage: nextPct },
                         }));
 
                         if (onAddClick) {
                           onAddClick({
-                            timeSlot: item.timeSlot,
+                            timeSlot: item.timeSlotLabel,
                             votes: row.noOfVotesPolled,
                           });
                         }

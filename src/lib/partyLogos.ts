@@ -11,6 +11,14 @@ export const PARTY_LOGO_SRC: Record<string, string> = {
   "INC": "/party-logos/inc.svg",
 };
 
+/** Maps normalized party names to Tailwind text color classes (flag/brand colors). */
+export const PARTY_COLOR_CLASSES: Record<string, string> = {
+  "DMK": "text-red-600 dark:text-red-400",
+  "AIADMK": "text-emerald-600 dark:text-emerald-400",
+  "BJP": "text-amber-600 dark:text-amber-400",
+  "INC": "text-blue-600 dark:text-blue-400",
+};
+
 /**
  * Given a party name string, returns the corresponding logo src.
  *
@@ -25,5 +33,18 @@ export function getPartyLogoSrc(partyName?: string | null): string | undefined {
   if (!key) return undefined;
 
   return PARTY_LOGO_SRC[key];
+}
+
+const DEFAULT_HEADING_COLOR = "text-slate-800 dark:text-slate-100";
+
+/**
+ * Returns Tailwind text color classes for a party (flag/brand color).
+ * Use for candidate heading when party is known. Falls back to default slate if unknown.
+ */
+export function getPartyColorClass(partyName?: string | null): string {
+  if (!partyName) return DEFAULT_HEADING_COLOR;
+  const key = partyName.trim().toUpperCase();
+  if (!key) return DEFAULT_HEADING_COLOR;
+  return PARTY_COLOR_CLASSES[key] ?? DEFAULT_HEADING_COLOR;
 }
 

@@ -13,7 +13,7 @@ import CountTable from "../../components/VoteCountPollTable";
 import type { BoothAgentInfoRes, BoothPollInfo, Tab, TableData } from "../../models/models";
 import Loading from "../../components/Loading";
 import { useBoothData } from "../../hooks/useBoothData";
-import { toBoothInfo } from "../../lib/mapBoothAgentInfo";
+import { getTimeSlots, toBoothInfo } from "../../lib/mapBoothAgentInfo";
 import { request } from "../../api/client";
 
 /** Shared retry block for cancelled and error states */
@@ -51,14 +51,14 @@ export const BoothDataPage = () => {
     );
   }
 
-  if (status === "cancelled") {
-    return <RetryBlock message="Request cancelled." onRetry={refetch} />;
-  }
+  // if (status === "cancelled") {
+  //   return <RetryBlock message="Request cancelled." onRetry={refetch} />;
+  // }
 
-  if (isError && error) {
-    const message = error.message ?? "Something went wrong while fetching data.";
-    return <RetryBlock message={message} onRetry={refetch} />;
-  }
+  // if (isError && error) {
+  //   const message = error.message ?? "Something went wrong while fetching data.";
+  //   return <RetryBlock message={message} onRetry={refetch} />;
+  // }
 
   if (!bootAgentInfoRes || !bootAgentInfoRes.booths?.length) {
     return (
@@ -101,77 +101,31 @@ export const BoothDataPage = () => {
 
   const SAVE_VOTE_POLL_PATH = "/addSingleVote";
 
-  // Helper function to generate current time slot based on min/max bounds.
-  // - Uses 1 hour as a single slot (e.g. 7 AM - 8 AM).
-  // - End time will never be greater than the current hour or the max end hour.
-  const getCurrentTimeSlot = (): string => {
-    const now = new Date();
-    const currentHour = now.getHours(); // 0–23
-
-    // Boundaries for polling time slots (in 24h format)
-    const minStartHour = 7;  // 07:00 (7 AM)
-    const maxEndHour = 19;   // 19:00 (7 PM) → last slot is 18–19
-
-    // Determine the effective latest possible end hour:
-    //  - must be <= currentHour (slot already completed)
-    //  - must be <= maxEndHour
-    let slotEndHour = Math.min(currentHour, maxEndHour);
-
-    // Ensure we are at least one hour after the minimum start.
-    // If current time is before polling starts, clamp to first slot.
-    if (slotEndHour <= minStartHour) {
-      slotEndHour = minStartHour + 1;
-    }
-
-    let slotStartHour = slotEndHour - 1;
-
-    // Extra safety: never start before minStartHour
-    if (slotStartHour < minStartHour) {
-      slotStartHour = minStartHour;
-      slotEndHour = minStartHour + 1;
-    }
-
-    const formatTime = (hour: number): string => {
-      const period = hour >= 12 ? "PM" : "AM";
-      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-      return `${displayHour} ${period}`; // e.g. "7 AM"
-    };
-
-    return `${formatTime(slotStartHour)} - ${formatTime(slotEndHour)}`; // e.g. "7 AM - 8 AM"
-  };
-
+  const timeSlots = getTimeSlots();
+  //console.log("timeSlots", timeSlots);
   // Success: all data comes from API response (bootAgentInfoRes)
   const boothInfoForHeader = toBoothInfo(bootAgentInfoRes);
-
-  const tabs: Tab[] = bootAgentInfoRes.booths.map((boothData) => {
+  
+  const tabs: Tab[] = bootAgentInfoRes.booths.map((boothData, boothIndex) => {
     const boothDetails = boothData.boothDetails;
     const totalVotes = boothDetails.totalVoters;
-    const tableData: TableData[] = boothData.votePollList.map((votePoll) => {
-      const percentage = totalVotes ? (votePoll.tsPollVotes / totalVotes) * 100 : 0;
+    const votePollList = boothData.votePollList;
+    const tableData: TableData[] = timeSlots.map((timeSlot, pollIndex) => {
+      const votePollRes = votePollList[pollIndex];
+      const percentage = totalVotes ? (votePollRes?.tsPollVotes / totalVotes) * 100 : 0;
       return {
-        id: String(votePoll.votepollId),
-        timeSlot: votePoll.timeSlot,
-        noOfVotesPolled: votePoll.tsPollVotes,
-        percentage: percentage.toFixed(2),
+        timeSlotId: `booth_${boothData.boothpollId}_${timeSlot.id}`,
+        timeSlotLabel: timeSlot.label,
+        noOfVotesPolled: votePollRes?.tsPollVotes?? "" as any,
+        percentage: percentage ? percentage.toFixed(2) : 0,
         isDisabled: true,
-        isCurrentTimeSlot: false
+        isCurrentTimeSlot: false,
+        action: timeSlot.action
       };
-    });
+    })
     
-    // Add new object for current time slot from UI for business logic
-    tableData.push({
-      id: "",
-      timeSlot: getCurrentTimeSlot(),
-      noOfVotesPolled: "" as any,
-      percentage: "0.00",
-      isDisabled: false,
-      isCurrentTimeSlot: true,
-      action: "add"
-    });
-    
-
     return {
-      id: String(boothDetails.boothId),
+      id: `booth-${boothIndex}-${boothDetails.boothId}`,
       label: `Booth - ${boothDetails.boothId}`,
       totalVotes,
       content: (

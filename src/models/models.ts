@@ -26,8 +26,8 @@ export interface VoteCountProps {
 
 // Table Data Interfaces for Vote Count Poll Table
 export interface TableData {
-  id: string;
-  timeSlot: string;
+  timeSlotId: string;
+  timeSlotLabel: string;
   noOfVotesPolled: number;
   percentage: number | string;
   isDisabled: boolean;
