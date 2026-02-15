@@ -43,7 +43,7 @@ export interface CountTableProps {
    * for the current time slot row. Gives the time slot label and
    * the number of votes entered in the UI.
    */
-  onAddClick?: (args: { timeSlot: string; votes: number }) => void;
+  onAddClick?: (args: { timeSlot: string; timeSlotId: string; votes: number }) => void;
 }
 
 // Quantity Counter Interfaces
@@ -103,6 +103,7 @@ export interface VotePoll {
   paramId: string;
   paramName: string;
   timeSlot: string;
+  timeSlotId?: string;
   tsPollVotes: number;
   createdUser: string;
 }

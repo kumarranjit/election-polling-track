@@ -36,7 +36,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
               Votes polled
             </th>
             <th scope="col" className="px-3 py-3 sm:px-6 sm:py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-700 bg-blue-100/80 sm:text-sm">
-              Action (OR) %
+              Action | %
             </th>
           </tr>
         </thead>
@@ -89,6 +89,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                         if (onAddClick) {
                           onAddClick({
                             timeSlot: item.timeSlotLabel,
+                            timeSlotId: item.timeSlotId,
                             votes: row.noOfVotesPolled,
                           });
                         }

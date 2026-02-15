@@ -51,14 +51,14 @@ export const BoothDataPage = () => {
     );
   }
 
-  // if (status === "cancelled") {
-  //   return <RetryBlock message="Request cancelled." onRetry={refetch} />;
-  // }
+  if (status === "cancelled") {
+    return <RetryBlock message="Request cancelled." onRetry={refetch} />;
+  }
 
-  // if (isError && error) {
-  //   const message = error.message ?? "Something went wrong while fetching data.";
-  //   return <RetryBlock message={message} onRetry={refetch} />;
-  // }
+  if (isError && error) {
+    const message = error.message ?? "Something went wrong while fetching data.";
+    return <RetryBlock message={message} onRetry={refetch} />;
+  }
 
   if (!bootAgentInfoRes || !bootAgentInfoRes.booths?.length) {
     return (
@@ -72,6 +72,7 @@ export const BoothDataPage = () => {
     agentInfo: BoothAgentInfoRes,
     booth: BoothPollInfo,
     timeSlot: string,
+    timeSlotId: string,
     tsPollVotes: number
   ): BoothAgentInfoRes => {
     const { stateId, districtId, consId } = agentInfo;
@@ -90,6 +91,7 @@ export const BoothDataPage = () => {
               paramId,
               paramName: "",
               timeSlot,
+              timeSlotId,
               tsPollVotes,
               createdUser: agentInfo.agentMobile,
             },
@@ -118,9 +120,10 @@ export const BoothDataPage = () => {
         timeSlotLabel: timeSlot.label,
         noOfVotesPolled: votePollRes?.tsPollVotes?? "" as any,
         percentage: percentage ? percentage.toFixed(2) : 0,
-        isDisabled: true,
-        isCurrentTimeSlot: false,
-        action: timeSlot.action
+        isDisabled: timeSlot.isDisabled && votePollRes?.tsPollVotes ? true : false,
+        isCurrentTimeSlot: timeSlot.isCurrentTimeSlot,
+        action: timeSlot.isCurrentTimeSlot ? timeSlot.action : 
+                votePollRes?.tsPollVotes? '' : 'add'
       };
     })
     
@@ -129,17 +132,18 @@ export const BoothDataPage = () => {
       label: `Booth - ${boothDetails.boothId}`,
       totalVotes,
       content: (
-        <div className="p-4">
+        <div className="p-2">
           {totalVotes ? (
             <CountTable
               data={tableData}
               totalVotes={totalVotes}
-              onAddClick={async ({ timeSlot, votes }) => {
+              onAddClick={async ({ timeSlot, timeSlotId, votes }) => {
                 if (!bootAgentInfoRes) return;
                 const payload = buildSavePayload(
                   bootAgentInfoRes,
                   boothData as BoothPollInfo,
                   timeSlot,
+                  timeSlotId,
                   votes
                 );
 

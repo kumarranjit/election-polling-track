@@ -56,24 +56,24 @@ const getCurrentTime = (): { startHour: number, endHour: number } => {
 
 export const getTimeSlots = (): TimeSlot[] | [] => {
   const timeSlots: TimeSlot[] = [];
+  const currentTimeSlot = getCurrentTime();
   for (let i = MIN_START_HOUR; i <= MAX_END_HOUR; i++) {
-    const currentTimeSlot = getCurrentTime();
-    if(i <= currentTimeSlot.endHour) {
-    const isCurrentTimeSlot = i === currentTimeSlot?.startHour;
+    if (i > currentTimeSlot.endHour) break;
+    const isCurrentTimeSlot = i === currentTimeSlot.startHour;
     const time_slot = formatTimeSlotLabel(i, i + 1);
     const time_slot_id = time_slot.replace(/\s*-\s*/, '_').replace(/\s+/g, '');
-      timeSlots.push({
-        startHour: i,
-        endHour: i + 1,
-        id: time_slot_id,
-        label: time_slot,
-        isCurrentTimeSlot: isCurrentTimeSlot,
-        noOfVotesPolled: 0,
-        percentage: 0,
-        isDisabled: false,
-        action: isCurrentTimeSlot ? 'add': ''
-      });
-    }
+    timeSlots.push({
+      startHour: i,
+      endHour: i + 1,
+      id: time_slot_id,
+      label: time_slot,
+      isCurrentTimeSlot,
+      noOfVotesPolled: 0,
+      percentage: 0,
+      isDisabled: isCurrentTimeSlot ? false : true,
+      action: isCurrentTimeSlot ? 'add' : ''
+    });
+    if (isCurrentTimeSlot) break;
   }
   return timeSlots;
 }
