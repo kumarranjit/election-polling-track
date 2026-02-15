@@ -14,6 +14,9 @@ export interface Tab {
 export interface TabComponentProps {
   tabs: Tab[];
   defaultActiveTab?: string;
+  /** When provided, tab selection is controlled by the parent (survives refetch). */
+  activeTab?: string;
+  onActiveTabChange?: (tabId: string) => void;
   variant?: 'default' | 'pills';
 }
 

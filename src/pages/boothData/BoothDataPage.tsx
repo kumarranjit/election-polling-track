@@ -7,6 +7,7 @@
  * 3. toBoothInfo(bootAgentInfoRes) maps API shape to BoothInfo for the header; tabs are built from bootAgentInfoRes.booths.
  */
 
+import { useState } from "react";
 import TabComponent from "../../components/TabComponent";
 import BoothAgentInfo from "../../components/BoothAgentInfo";
 import CountTable from "../../components/VoteCountPollTable";
@@ -42,6 +43,8 @@ export const BoothDataPage = () => {
     status,
     refetch,
   } = useBoothData();
+
+  const [activeTabId, setActiveTabId] = useState<string>("");
 
   if (isLoading) {
     return (
@@ -104,10 +107,9 @@ export const BoothDataPage = () => {
   const SAVE_VOTE_POLL_PATH = "/addSingleVote";
 
   const timeSlots = getTimeSlots();
-  //console.log("timeSlots", timeSlots);
   // Success: all data comes from API response (bootAgentInfoRes)
   const boothInfoForHeader = toBoothInfo(bootAgentInfoRes);
-  
+
   const tabs: Tab[] = bootAgentInfoRes.booths.map((boothData, boothIndex) => {
     const boothDetails = boothData.boothDetails;
     const totalVotes = boothDetails.totalVoters;
@@ -223,10 +225,18 @@ export const BoothDataPage = () => {
     };
   });
 
+  const effectiveActiveTab = activeTabId && tabs.some((t) => t.id === activeTabId)
+    ? activeTabId
+    : tabs[0]?.id ?? "";
+
   return (
     <div className="container mx-auto py-2 md:py-8">
       <BoothAgentInfo info={boothInfoForHeader} partyName={bootAgentInfoRes.partyName} />
-      <TabComponent tabs={tabs} />
+      <TabComponent
+        tabs={tabs}
+        activeTab={effectiveActiveTab}
+        onActiveTabChange={setActiveTabId}
+      />
     </div>
   );
 };
