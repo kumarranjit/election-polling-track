@@ -9,14 +9,17 @@
 
 import { useApi } from "./useApi";
 import type { BoothAgentInfoRes } from "../models/models";
+import { useAuth } from "../context/AuthContext";
 
-/** Path appended to VITE_API_BASE_URL. Example: "/byMobile2?mobile=9629019295" or "booth-agent" */
-const BOOTH_AGENT_PATH = "/byMobile2?mobile=9629019295";
-
+/** Hook to fetch booth-agent data for the currently logged-in mobile number. */
 export function useBoothData(options?: { enabled?: boolean }) {
+  const { mobileNumber } = useAuth();
+
+  const path = `/byMobile2?mobile=${mobileNumber ?? ""}`;
+
   return useApi<BoothAgentInfoRes>({
-    path: BOOTH_AGENT_PATH,
-    enabled: options?.enabled ?? true,
+    path,
+    enabled: (options?.enabled ?? true) && !!mobileNumber,
     refetchOnWindowFocus: false,
   });
 }

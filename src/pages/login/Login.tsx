@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Smartphone, Lock, Send } from 'lucide-react';
+import { useAuth } from "../../context/AuthContext";
 import { sendOtp, verifyOtp } from '../../api/auth';
 
 function Login() {
@@ -14,6 +15,7 @@ function Login() {
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [mobileError, setMobileError] = useState('');
   const [otpError, setOtpError] = useState('');
+  const { setMobileNoContex } = useAuth();
   const navigate = useNavigate();
 
   const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/;
@@ -89,16 +91,24 @@ function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otpSent || !otp.trim()) return;
+    
+    if (!otpSent || !otp.trim()) {
+      setOtpError('Please enter the OTP sent to your mobile number.');
+      return;
+    }
 
     setOtpError('');
     setIsLoading(true);
     try {
       const res = await verifyOtp(mobileNumber, otp.trim());
       if (res.ok) {
+        // Only mark as logged in after successful verification
+        setMobileNoContex(mobileNumber);
         navigate('/home');
         return;
       }
+      // Login failed – ensure user is treated as not authenticated
+      setMobileNoContex(null);
       setOtpError(res.error?.message ?? 'Verification failed. Please check the OTP and try again.');
     } finally {
       setIsLoading(false);
@@ -304,7 +314,7 @@ function Login() {
 
               <button
                 type="submit"
-                disabled={isLoading || !otpSent || !otp.trim()}
+                // disabled={isLoading || !otpSent || !otp.trim()}
                 className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-4 rounded-xl font-medium shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isLoading ? (
