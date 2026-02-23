@@ -32,6 +32,8 @@ export interface TableData {
   timeSlotId: string;
   timeSlotLabel: string;
   noOfVotesPolled: number;
+  totalPollVotes: number;
+  tsPollVotes: number;
   percentage: number | string;
   isDisabled: boolean;
   isCurrentTimeSlot?: boolean
@@ -108,6 +110,7 @@ export interface VotePoll {
   timeSlot: string;
   timeSlotId?: string;
   tsPollVotes: number;
+  totalPollVotes: number;
   createdUser: string;
 }
 

@@ -46,8 +46,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
               noOfVotesPolled: item.noOfVotesPolled,
               percentage: item.percentage,
             };
-            const percentageText = `${String(row.percentage).replace(/%$/, '')}%`;
-
+            
             return (
               <tr key={item.timeSlotId} className="bg-gray-50/50 hover:bg-gray-50 transition-colors">
               <th scope="row" className="px-3 py-3 sm:px-6 sm:py-4">
@@ -55,9 +54,9 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                   <span className="font-medium text-gray-900 whitespace-nowrap">
                     {item.timeSlotLabel}
                   </span>
-                  {/* <span className="inline-flex w-fit self-center items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
-                    {percentageText}
-                  </span> */}
+                  <span className="inline-flex w-fit self-center items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
+                    {item.tsPollVotes}
+                  </span>
                 </div>
               </th>
               <td className="px-3 py-3 sm:px-6 sm:py-4">
@@ -113,7 +112,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                     </button>
                   ) : (
                     <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
-                      {percentageText}
+                      {item.percentage}%
                     </span>
                   )}
                 </div>

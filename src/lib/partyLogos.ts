@@ -5,10 +5,10 @@
 /** Maps normalized party names to logo image paths. */
 export const PARTY_LOGO_SRC: Record<string, string> = {
   ///Examples (update paths to match your assets):
-  "DMK": "dmklogo.webp",
-  "AIADMK": "/party-logos/aiadmk.svg",
-  "BJP": "/party-logos/bjp.svg",
-  "INC": "/party-logos/inc.svg",
+  "DMK": "/party-logos/dmklogo.webp",
+  "AIADMK": "/party-logos/admk2.gif",
+  "BJP": "/party-logos/bjp.png",
+  "INC": "/party-logos/inc.jfif",
 };
 
 /** Maps normalized party names to Tailwind text color classes (flag/brand colors). */

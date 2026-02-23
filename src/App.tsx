@@ -8,7 +8,12 @@ import Contact from "./pages/contact/Contact";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const ProtectedRoute = () => {
-  const { mobileNumber } = useAuth();
+  const { mobileNumber, isAuthReady } = useAuth();
+
+  // Wait until we know whether a user is stored in localStorage
+  if (!isAuthReady) {
+    return null; // or a small loader if you prefer
+  }
 
   if (!mobileNumber) {
     return <Navigate to="/" replace />;

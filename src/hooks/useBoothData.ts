@@ -15,7 +15,8 @@ import { useAuth } from "../context/AuthContext";
 export function useBoothData(options?: { enabled?: boolean }) {
   const { mobileNumber } = useAuth();
 
-  const path = `/byMobile2?mobile=${mobileNumber ?? ""}`;
+  const phoneNumber = mobileNumber?.startsWith("91") ? mobileNumber : `91${mobileNumber}`;
+  const path = `/byMobile2?mobile=${phoneNumber ?? ""}`;
 
   return useApi<BoothAgentInfoRes>({
     path,

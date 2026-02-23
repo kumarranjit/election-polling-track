@@ -48,19 +48,19 @@ const BoothAgentInfo = ({ info, partyName }: BoothAgentInfoProps) => {
       </div>
 
       {/* State / District / Constituency — label on line 1, values on line 2 */}
-      <div className="mt-1 min-w-0 rounded-lg bg-slate-50/80 px-3 py-2 dark:bg-slate-800/40 sm:mt-3 sm:px-4 sm:py-2.5">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 sm:text-[11px]">
-          State / District / Constituency
+      <div className="mt-1 min-w-0 rounded-lg px-3 py-2 text-center lg:text-left dark:bg-slate-800/40 sm:mt-3 sm:px-4 sm:py-2.5">
+        <p className="text-[10px] font-bold uppercase tracking-wider sm:text-[11px]">
+          State | District | Constituency
         </p>
-        <p className="mt-1 flex min-w-0 flex-row flex-wrap items-baseline gap-x-1.5 sm:gap-x-2">
+        <p className="mt-1 flex min-w-0 flex-row flex-wrap items-baseline justify-center lg:justify-start gap-x-1.5 sm:gap-x-2">
           <span className={`min-w-0 truncate text-xs font-semibold sm:text-sm ${labelThemeClasses.orange}`} title={info.state}>
             {info.state}
           </span>
-          <span className="shrink-0 text-slate-300 dark:text-slate-500" aria-hidden>/</span>
+          <span className="shrink-0 text-slate-300 dark:text-slate-500" aria-hidden>|</span>
           <span className={`min-w-0 truncate text-xs font-semibold sm:text-sm ${labelThemeClasses.emerald}`} title={info.district}>
             {info.district}
           </span>
-          <span className="shrink-0 text-slate-300 dark:text-slate-500" aria-hidden>/</span>
+          <span className="shrink-0 text-slate-300 dark:text-slate-500" aria-hidden>|</span>
           <span className={`min-w-0 truncate text-xs font-semibold sm:text-sm ${labelThemeClasses.sky}`} title={info.ac}>
             {info.ac}
           </span>

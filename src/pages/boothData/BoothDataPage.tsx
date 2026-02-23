@@ -76,7 +76,8 @@ export const BoothDataPage = () => {
     booth: BoothPollInfo,
     timeSlot: string,
     timeSlotId: string,
-    tsPollVotes: number
+    tsPollVotes: number,
+    totalPollVotes: number
   ): BoothAgentInfoRes => {
     const { stateId, districtId, consId } = agentInfo;
     const boothId = booth.boothDetails.boothId;
@@ -96,6 +97,7 @@ export const BoothDataPage = () => {
               timeSlot,
               timeSlotId,
               tsPollVotes,
+              totalPollVotes,
               createdUser: agentInfo.agentMobile,
             },
           ],
@@ -116,11 +118,13 @@ export const BoothDataPage = () => {
     const votePollList = boothData.votePollList;
     const tableData: TableData[] = timeSlots.map((timeSlot, pollIndex) => {
       const votePollRes = votePollList[pollIndex];
-      const percentage = totalVotes ? (votePollRes?.tsPollVotes / totalVotes) * 100 : 0;
+      const percentage = totalVotes ? (votePollRes?.totalPollVotes / totalVotes) * 100 : 0;
       return {
         timeSlotId: `booth_${boothData.boothpollId}_${timeSlot.id}`,
         timeSlotLabel: timeSlot.label,
-        noOfVotesPolled: votePollRes?.tsPollVotes?? "" as any,
+        noOfVotesPolled: votePollRes?.totalPollVotes ?? 0,
+        totalPollVotes: votePollRes?.totalPollVotes ?? 0,
+        tsPollVotes: votePollRes?.tsPollVotes ?? 0,
         percentage: percentage ? percentage.toFixed(2) : 0,
         isDisabled: timeSlot.isDisabled && votePollRes?.tsPollVotes ? true : false,
         isCurrentTimeSlot: timeSlot.isCurrentTimeSlot,
@@ -141,12 +145,29 @@ export const BoothDataPage = () => {
               totalVotes={totalVotes}
               onAddClick={async ({ timeSlot, timeSlotId, votes }) => {
                 if (!bootAgentInfoRes) return;
+                // Derive tsPollVotes as current noOfVotesPolled minus previous noOfVotesPolled
+                const currentIndex = timeSlots.findIndex(
+                  (slot) => `booth_${boothData.boothpollId}_${slot.id}` === timeSlotId
+                );
+                const previousVotePoll =
+                  currentIndex > 0 ? votePollList[currentIndex - 1] : undefined;
+                const previousTotal = previousVotePoll?.totalPollVotes ?? 0;
+                const currentTotal = votes;
+
+                if (currentTotal < previousTotal) {
+                  window.alert("Votes polled cannot be less than previous total.");
+                  return;
+                }
+
+                const tsPollVotes = currentTotal - previousTotal;
+
                 const payload = buildSavePayload(
                   bootAgentInfoRes,
                   boothData as BoothPollInfo,
                   timeSlot,
                   timeSlotId,
-                  votes
+                  tsPollVotes,
+                  currentTotal
                 );
 
                 try {

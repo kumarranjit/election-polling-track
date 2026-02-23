@@ -11,11 +11,12 @@ function Login() {
   const [otp, setOtp] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [authSession, setAuthSession] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [mobileError, setMobileError] = useState('');
   const [otpError, setOtpError] = useState('');
-  const { setMobileNoContex } = useAuth();
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/;
@@ -53,9 +54,10 @@ function Login() {
     setMobileError('');
     setIsSendingOtp(true);
     try {
-      const res = await sendOtp(mobileNumber);
-      if (res.ok) {
+      let res = await sendOtp(mobileNumber);
+      if (res.ok && res.data) {
         setOtpSent(true);
+        setAuthSession(res.data.Session ?? null);
         setTimeLeft(120);
         setOtp('');
       } else {
@@ -72,7 +74,8 @@ function Login() {
     setIsSendingOtp(true);
     try {
       const res = await sendOtp(mobileNumber);
-      if (res.ok) {
+      if (res.ok && res.data) {
+        setAuthSession(res.data.Session ?? null);
         setTimeLeft(120);
         setOtp('');
       } else {
@@ -96,19 +99,22 @@ function Login() {
       setOtpError('Please enter the OTP sent to your mobile number.');
       return;
     }
+    if (!authSession) {
+      setOtpError('Session expired. Please request a new OTP.');
+      return;
+    }
 
     setOtpError('');
     setIsLoading(true);
     try {
-      const res = await verifyOtp(mobileNumber, otp.trim());
-      if (res.ok) {
-        // Only mark as logged in after successful verification
-        setMobileNoContex(mobileNumber);
+      const res = await verifyOtp(mobileNumber, otp.trim(), authSession);
+      if (res.ok && res.data) {
+        // Store verifyOTP response in context so it's available globally
+        setUser(res.data);
         navigate('/home');
         return;
       }
-      // Login failed – ensure user is treated as not authenticated
-      setMobileNoContex(null);
+      setUser(null);
       setOtpError(res.error?.message ?? 'Verification failed. Please check the OTP and try again.');
     } finally {
       setIsLoading(false);

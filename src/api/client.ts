@@ -80,12 +80,10 @@ export async function request<T>(options: ApiRequestOptions): Promise<ApiRespons
     };
   }
 
-  const contentType = response.headers.get("content-type");
-  const isJson = contentType?.includes("application/json");
-  let parsed: unknown;
+  let parsed: unknown = null;
   try {
     const text = await response.text();
-    parsed = text && isJson ? JSON.parse(text) : text || null;
+    parsed = text ? JSON.parse(text) : null;
   } catch {
     parsed = null;
   }
