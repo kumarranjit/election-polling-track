@@ -59,7 +59,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                   </span>
                 </div>
               </th>
-              <td className="px-3 py-3 sm:px-6 sm:py-4">
+              <td className="px-3 py-3 sm:px-6 sm:py-4">              
                 <VoteCounter
                   min={0}
                   max={totalVotes}
@@ -72,9 +72,11 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                     }))
                   }
                 />
+                 
               </td>
               <td className="px-3 py-3 sm:px-6 sm:py-4 text-center">
                 <div className="flex justify-center">
+                
                   {item.action === "add" ? (
                     <button
                       type="button"

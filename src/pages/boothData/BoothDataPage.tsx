@@ -116,6 +116,7 @@ export const BoothDataPage = () => {
     const boothDetails = boothData.boothDetails;
     const totalVotes = boothDetails.totalVoters;
     const votePollList = boothData.votePollList;
+    //debugger
     const tableData: TableData[] = timeSlots.map((timeSlot, pollIndex) => {
       const votePollRes = votePollList[pollIndex];
       const percentage = totalVotes ? (votePollRes?.totalPollVotes / totalVotes) * 100 : 0;
@@ -132,6 +133,7 @@ export const BoothDataPage = () => {
                 votePollRes?.tsPollVotes? '' : 'add'
       };
     })
+    tableData.reverse();
     
     return {
       id: `booth-${boothIndex}-${boothDetails.boothId}`,
