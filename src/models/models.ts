@@ -36,6 +36,7 @@ export interface TableData {
   tsPollVotes: number;
   percentage: number | string;
   isDisabled: boolean;
+  isPollEnded?: boolean;
   isCurrentTimeSlot?: boolean
   action?: string;
 }
@@ -43,6 +44,7 @@ export interface TableData {
 export interface CountTableProps {
   data: TableData[];
   totalVotes?: number; // Booth-specific total (not per time slot)
+  boothName?: string;
   /**
    * Optional callback invoked when the "Add" button is clicked
    * for the current time slot row. Gives the time slot label and

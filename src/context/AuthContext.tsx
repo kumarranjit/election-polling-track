@@ -36,8 +36,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const storedUser = localStorage.getItem(AUTH_USER_KEY);
       if (storedUser) {
-        const parsed = JSON.parse(storedUser) as AuthUser;
-        setUserState(parsed);
+        try {
+          const parsed = JSON.parse(storedUser) as AuthUser;
+          setUserState(parsed);
+
+          // Backfill mobileNumber from stored user so refresh keeps auth-gated routes working.
+          const derivedMobile = parsed?.agentMobile ?? null;
+          if (derivedMobile) {
+            setMobileNumberState(derivedMobile);
+            localStorage.setItem("mobileNumber", derivedMobile);
+          }
+        } catch {
+          // Corrupt/legacy value; clear so app can recover cleanly.
+          localStorage.removeItem(AUTH_USER_KEY);
+        }
       }
     } finally {
       setIsAuthReady(true);
@@ -58,6 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (newUser) {
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newUser));
       setMobileNumberState(newUser.agentMobile);
+      localStorage.setItem("mobileNumber", newUser.agentMobile);
     } else {
       localStorage.removeItem(AUTH_USER_KEY);
       setMobileNumberState(null);

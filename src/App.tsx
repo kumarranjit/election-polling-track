@@ -8,14 +8,15 @@ import Contact from "./pages/contact/Contact";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const ProtectedRoute = () => {
-  const { mobileNumber, isAuthReady } = useAuth();
+  const { user, mobileNumber, isAuthReady } = useAuth();
 
   // Wait until we know whether a user is stored in localStorage
   if (!isAuthReady) {
     return null; // or a small loader if you prefer
   }
 
-  if (!mobileNumber) {
+  // Prefer checking the stored auth user; mobileNumber is a convenience for data fetching.
+  if (!user && !mobileNumber) {
     return <Navigate to="/" replace />;
   }
 
@@ -24,13 +25,13 @@ const ProtectedRoute = () => {
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      {/* Hero Section */}
-      <main className="flex-1 pt-16 pb-4 bg-white">
-        {/* Adjust pt for header height, pb for footer */}
-        <div className="container mx-auto px-4 pt-4 pb-8">
-          <AuthProvider>
+    <AuthProvider>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        {/* Hero Section */}
+        <main className="flex-1 pt-16 pb-4 bg-white">
+          {/* Adjust pt for header height, pb for footer */}
+          <div className="container mx-auto px-4 pt-4 pb-8">
             <Routes>
               <Route path="/" element={<Login />} />
 
@@ -40,11 +41,11 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
               </Route>
             </Routes>
-          </AuthProvider>
-        </div>
-      </main>
-      <Footer />
-    </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    </AuthProvider>
   );
 }
 

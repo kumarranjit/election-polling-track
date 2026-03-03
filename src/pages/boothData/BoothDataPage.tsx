@@ -117,20 +117,35 @@ export const BoothDataPage = () => {
     const totalVotes = boothDetails.totalVoters;
     const votePollList = boothData.votePollList;
     //debugger
+    let pollEnded = false;
     const tableData: TableData[] = timeSlots.map((timeSlot, pollIndex) => {
       const votePollRes = votePollList[pollIndex];
+      const totalPollVotes = votePollRes?.totalPollVotes ?? 0;
+      const tsPollVotes = votePollRes?.tsPollVotes ?? 0;
+
+      if (!pollEnded && totalVotes > 0 && totalPollVotes >= totalVotes) {
+        pollEnded = true;
+      }
+
       const percentage = totalVotes ? (votePollRes?.totalPollVotes / totalVotes) * 100 : 0;
+      const isPollEnded = pollEnded;
       return {
         timeSlotId: `booth_${boothData.boothpollId}_${timeSlot.id}`,
         timeSlotLabel: timeSlot.label,
-        noOfVotesPolled: votePollRes?.totalPollVotes ?? 0,
-        totalPollVotes: votePollRes?.totalPollVotes ?? 0,
-        tsPollVotes: votePollRes?.tsPollVotes ?? 0,
+        noOfVotesPolled: totalPollVotes,
+        totalPollVotes,
+        tsPollVotes,
         percentage: percentage ? percentage.toFixed(2) : 0,
-        isDisabled: timeSlot.isDisabled && votePollRes?.tsPollVotes ? true : false,
+        isDisabled: isPollEnded ? true : (timeSlot.isDisabled && tsPollVotes ? true : false),
+        isPollEnded,
         isCurrentTimeSlot: timeSlot.isCurrentTimeSlot,
-        action: timeSlot.isCurrentTimeSlot ? timeSlot.action : 
-                votePollRes?.tsPollVotes? '' : 'add'
+        action: isPollEnded
+          ? ""
+          : timeSlot.isCurrentTimeSlot
+            ? timeSlot.action
+            : tsPollVotes
+              ? ""
+              : "add",
       };
     })
     tableData.reverse();
@@ -140,11 +155,12 @@ export const BoothDataPage = () => {
       label: `Booth - ${boothDetails.boothId}`,
       totalVotes,
       content: (
-        <div className="p-2">
+        <div className="p-1">
           {totalVotes ? (
             <CountTable
               data={tableData}
               totalVotes={totalVotes}
+              boothName={boothDetails.boothName}
               onAddClick={async ({ timeSlot, timeSlotId, votes }) => {
                 if (!bootAgentInfoRes) return;
                 // Derive tsPollVotes as current noOfVotesPolled minus previous noOfVotesPolled
@@ -153,6 +169,7 @@ export const BoothDataPage = () => {
                 );
                 const previousVotePoll =
                   currentIndex > 0 ? votePollList[currentIndex - 1] : undefined;
+                debugger;
                 const previousTotal = previousVotePoll?.totalPollVotes ?? 0;
                 const currentTotal = votes;
 
@@ -199,7 +216,7 @@ export const BoothDataPage = () => {
             <p>No polling results for this booth.</p>
           )}
 
-          <div className="mt-6">
+          {/* <div className="mt-6">
             <div className="mb-3 flex items-center gap-2">
               <span className="h-1 w-6 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
@@ -234,15 +251,15 @@ export const BoothDataPage = () => {
                   <span className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
                     Booth Name
                   </span>
-                  {/* <span className="truncate text-sm font-bold tracking-tight">
+                  <span className="truncate text-sm font-bold tracking-tight">
                     {boothDetails.boothName}
-                  </span> */}
+                  </span>
                   <span className="text-sm font-bold tracking-tight leading-snug">
                   {boothDetails.boothName}
                 </span>
                 </div>
             </div>
-          </div>
+          </div> */}
         </div>
       ),
     };

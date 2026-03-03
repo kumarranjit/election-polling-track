@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import VoteCounter from './VoteCounter';
 import type { CountTableProps } from '../models/models';
 
-const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAddClick }) => {
+const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, boothName, onAddClick }) => {
   const initialRowState = useMemo(() => {
     return data.reduce<Record<string, { noOfVotesPolled: number; percentage: number | string }>>(
       (acc, item) => {
@@ -25,17 +25,48 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
   };
 
   return (
-    <div className="relative overflow-x-auto -mx-4 sm:mx-0 rounded-lg border border-gray-200 shadow-sm ring-1 ring-gray-900/5">
-      <table className="min-w-[320px] w-full text-sm text-gray-700">
+    <>
+    <div className="-mx-1 sm:mx-0 mb-1 rounded-lg border border-gray-200 bg-white px-1 py-1 shadow-sm ring-1 ring-gray-900/5">
+      <div className="grid grid-cols-5 items-center gap-2">
+        <div className="col-span-1">
+          <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            Total
+          </div>
+          <div className="text-xs sm:text-sm font-bold text-slate-900">{totalVotes}</div>
+        </div>
+
+        <div className="col-span-4 min-w-0 text-right">
+          <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            Booth name
+          </div>
+          <div
+            className="min-w-0 truncate text-xs sm:text-sm font-semibold text-slate-900 cursor-pointer"
+            title={boothName ?? ""}
+            onClick={() => {
+              if (boothName) {
+                window.alert(boothName);
+              }
+            }}
+          >
+            {boothName || "-"}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="relative -mx-2 sm:mx-0 rounded-lg border border-gray-200 shadow-sm ring-1 ring-gray-900/5 overflow-x-hidden">
+      <table className="w-full text-xs sm:text-sm text-gray-700 table-fixed">
         <thead>
           <tr className="border-b border-gray-300">
-            <th scope="col" className="px-3 py-3 sm:px-6 sm:py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-700 bg-emerald-100/80 sm:text-sm">
+            <th scope="col" className="px-2 py-2 sm:px-4 sm:py-3 text-center text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-700 bg-emerald-100/80">
               Time slot
             </th>
-            <th scope="col" className="px-3 py-3 sm:px-6 sm:py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-700 bg-violet-100/80 sm:text-sm">
+            <th scope="col" className="px-2 py-2 sm:px-4 sm:py-3 text-center text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-700 bg-pink-100/80">
+              TS votes polled
+            </th>
+            <th scope="col" className="px-2 py-2 sm:px-4 sm:py-3 text-center text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-700 bg-violet-100/80">
               Votes polled
             </th>
-            <th scope="col" className="px-3 py-3 sm:px-6 sm:py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-700 bg-blue-100/80 sm:text-sm">
+            <th scope="col" className="px-2 py-2 sm:px-4 sm:py-3 text-center text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-700 bg-blue-100/80">
               Action | %
             </th>
           </tr>
@@ -47,24 +78,39 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
               percentage: item.percentage,
             };
             
+            const isRowDisabled = Boolean(item.isDisabled || item.isPollEnded);
+
             return (
-              <tr key={item.timeSlotId} className="bg-gray-50/50 hover:bg-gray-50 transition-colors">
-              <th scope="row" className="px-3 py-3 sm:px-6 sm:py-4">
+              <tr
+                key={item.timeSlotId}
+                className={[
+                  "bg-gray-50/50 transition-colors",
+                  isRowDisabled ? "opacity-60" : "hover:bg-gray-50",
+                ].join(" ")}
+              >
+              <th scope="row" className="px-2 py-2 sm:px-4 sm:py-3 align-top">
                 <div className="flex flex-col gap-1">
                   <span className="font-medium text-gray-900 whitespace-nowrap">
                     {item.timeSlotLabel}
                   </span>
-                  <span className="inline-flex w-fit self-center items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
+                  {/* <span className="inline-flex w-fit self-center items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
                     {item.tsPollVotes}
-                  </span>
+                  </span> */}
                 </div>
               </th>
-              <td className="px-3 py-3 sm:px-6 sm:py-4">              
+              <td className="px-2 py-2 sm:px-4 sm:py-3 text-center">
+                {Number(item.tsPollVotes ?? 0) > 0 ? (
+                  <span className="inline-flex min-w-10 items-center justify-center rounded-full bg-green-800 px-2 py-0.5 text-sm font-semibold text-white">
+                    {item.tsPollVotes}
+                  </span>
+                ) : null}
+              </td>
+              <td className="px-2 py-2 sm:px-4 sm:py-3">              
                 <VoteCounter
                   min={0}
                   max={totalVotes}
                   value={row.noOfVotesPolled}
-                  disabled={item.isDisabled}
+                  disabled={isRowDisabled}
                   onChange={(v) =>
                     setRows((prev) => ({
                       ...prev,
@@ -74,10 +120,10 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                 />
                  
               </td>
-              <td className="px-3 py-3 sm:px-6 sm:py-4 text-center">
+              <td className="px-2 py-2 sm:px-4 sm:py-3 text-center">
                 <div className="flex justify-center">
                 
-                  {item.action === "add" ? (
+                  {item.action === "add" && !item.isPollEnded ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -95,7 +141,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                           });
                         }
                       }}
-                      className="inline-flex min-h-8 min-w-8 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium leading-[0.75] text-white shadow-sm transition-colors active:scale-[0.98] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 touch-manipulation"
+                      className="inline-flex min-h-8 min-w-8 items-center justify-center gap-1.5 rounded-md bg-green-800 px-3 py-1.5 text-xs font-medium leading-[0.75] text-white shadow-sm transition-colors active:scale-[0.98] hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 touch-manipulation"
                       aria-label="Add vote count"
                     >
                       <svg
@@ -110,10 +156,10 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
                       >
                         <path d="M12 5v14M5 12h14" />
                       </svg>
-                      <span>Add</span>
+                      {/* <span>Add</span> */}
                     </button>
                   ) : (
-                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200/80">
+                    <span className="inline-flex items-center rounded-full bg-violet-800 px-3 py-1.5 text-sm font-semibold text-white">
                       {item.percentage}%
                     </span>
                   )}
@@ -126,6 +172,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, onAdd
         </tbody>
       </table>
     </div>
+    </>
   );
 };
 
