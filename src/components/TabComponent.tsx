@@ -4,14 +4,22 @@ import type { TabComponentProps } from '../models/models';
 const TabComponent: React.FC<TabComponentProps> = ({
   tabs,
   defaultActiveTab,
+  activeTab: controlledActiveTab,
+  onActiveTabChange,
   variant = 'pills'
 }) => {
-  const [activeTab, setActiveTab] = useState<string>(
+  const [internalActiveTab, setInternalActiveTab] = useState<string>(
     defaultActiveTab || tabs[0]?.id || ''
   );
+  const isControlled = controlledActiveTab !== undefined;
+  const activeTab = isControlled ? controlledActiveTab : internalActiveTab;
+  const setActiveTab = (id: string) => {
+    if (isControlled) onActiveTabChange?.(id);
+    else setInternalActiveTab(id);
+  };
 
   const getTabClasses = (isActive: boolean) => {
-    const baseClasses = "relative px-4 py-3 text-sm font-medium";
+    const baseClasses = "relative px-2 py-2 text-sm font-medium";
     switch (variant) {
       case 'pills':
         return `${baseClasses} ${

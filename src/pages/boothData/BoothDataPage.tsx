@@ -7,13 +7,14 @@
  * 3. toBoothInfo(bootAgentInfoRes) maps API shape to BoothInfo for the header; tabs are built from bootAgentInfoRes.booths.
  */
 
+import { useState } from "react";
 import TabComponent from "../../components/TabComponent";
 import BoothAgentInfo from "../../components/BoothAgentInfo";
 import CountTable from "../../components/VoteCountPollTable";
 import type { BoothAgentInfoRes, BoothPollInfo, Tab, TableData } from "../../models/models";
 import Loading from "../../components/Loading";
 import { useBoothData } from "../../hooks/useBoothData";
-import { toBoothInfo } from "../../lib/mapBoothAgentInfo";
+import { getTimeSlots, toBoothInfo } from "../../lib/mapBoothAgentInfo";
 import { request } from "../../api/client";
 
 /** Shared retry block for cancelled and error states */
@@ -42,6 +43,8 @@ export const BoothDataPage = () => {
     status,
     refetch,
   } = useBoothData();
+
+  const [activeTabId, setActiveTabId] = useState<string>("");
 
   if (isLoading) {
     return (
@@ -72,7 +75,9 @@ export const BoothDataPage = () => {
     agentInfo: BoothAgentInfoRes,
     booth: BoothPollInfo,
     timeSlot: string,
-    tsPollVotes: number
+    timeSlotId: string,
+    tsPollVotes: number,
+    totalPollVotes: number
   ): BoothAgentInfoRes => {
     const { stateId, districtId, consId } = agentInfo;
     const boothId = booth.boothDetails.boothId;
@@ -90,7 +95,9 @@ export const BoothDataPage = () => {
               paramId,
               paramName: "",
               timeSlot,
+              timeSlotId,
               tsPollVotes,
+              totalPollVotes,
               createdUser: agentInfo.agentMobile,
             },
           ],
@@ -101,92 +108,85 @@ export const BoothDataPage = () => {
 
   const SAVE_VOTE_POLL_PATH = "/addSingleVote";
 
-  // Helper function to generate current time slot based on min/max bounds.
-  // - Uses 1 hour as a single slot (e.g. 7 AM - 8 AM).
-  // - End time will never be greater than the current hour or the max end hour.
-  const getCurrentTimeSlot = (): string => {
-    const now = new Date();
-    const currentHour = now.getHours(); // 0–23
-
-    // Boundaries for polling time slots (in 24h format)
-    const minStartHour = 7;  // 07:00 (7 AM)
-    const maxEndHour = 19;   // 19:00 (7 PM) → last slot is 18–19
-
-    // Determine the effective latest possible end hour:
-    //  - must be <= currentHour (slot already completed)
-    //  - must be <= maxEndHour
-    let slotEndHour = Math.min(currentHour, maxEndHour);
-
-    // Ensure we are at least one hour after the minimum start.
-    // If current time is before polling starts, clamp to first slot.
-    if (slotEndHour <= minStartHour) {
-      slotEndHour = minStartHour + 1;
-    }
-
-    let slotStartHour = slotEndHour - 1;
-
-    // Extra safety: never start before minStartHour
-    if (slotStartHour < minStartHour) {
-      slotStartHour = minStartHour;
-      slotEndHour = minStartHour + 1;
-    }
-
-    const formatTime = (hour: number): string => {
-      const period = hour >= 12 ? "PM" : "AM";
-      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-      return `${displayHour} ${period}`; // e.g. "7 AM"
-    };
-
-    return `${formatTime(slotStartHour)} - ${formatTime(slotEndHour)}`; // e.g. "7 AM - 8 AM"
-  };
-
+  const timeSlots = getTimeSlots();
   // Success: all data comes from API response (bootAgentInfoRes)
   const boothInfoForHeader = toBoothInfo(bootAgentInfoRes);
 
-  const tabs: Tab[] = bootAgentInfoRes.booths.map((boothData) => {
+  const tabs: Tab[] = bootAgentInfoRes.booths.map((boothData, boothIndex) => {
     const boothDetails = boothData.boothDetails;
     const totalVotes = boothDetails.totalVoters;
-    const tableData: TableData[] = boothData.votePollList.map((votePoll) => {
-      const percentage = totalVotes ? (votePoll.tsPollVotes / totalVotes) * 100 : 0;
-      return {
-        id: String(votePoll.votepollId),
-        timeSlot: votePoll.timeSlot,
-        noOfVotesPolled: votePoll.tsPollVotes,
-        percentage: percentage.toFixed(2),
-        isDisabled: true,
-        isCurrentTimeSlot: false
-      };
-    });
-    
-    // Add new object for current time slot from UI for business logic
-    tableData.push({
-      id: "",
-      timeSlot: getCurrentTimeSlot(),
-      noOfVotesPolled: "" as any,
-      percentage: "0.00",
-      isDisabled: false,
-      isCurrentTimeSlot: true,
-      action: "add"
-    });
-    
+    const votePollList = boothData.votePollList;
+    //debugger
+    let pollEnded = false;
+    const tableData: TableData[] = timeSlots.map((timeSlot, pollIndex) => {
+      const votePollRes = votePollList[pollIndex];
+      const totalPollVotes = votePollRes?.totalPollVotes ?? 0;
+      const tsPollVotes = votePollRes?.tsPollVotes ?? 0;
 
+      if (!pollEnded && totalVotes > 0 && totalPollVotes >= totalVotes) {
+        pollEnded = true;
+      }
+
+      const percentage = totalVotes ? (votePollRes?.totalPollVotes / totalVotes) * 100 : 0;
+      const isPollEnded = pollEnded;
+      return {
+        timeSlotId: `booth_${boothData.boothpollId}_${timeSlot.id}`,
+        timeSlotLabel: timeSlot.label,
+        noOfVotesPolled: totalPollVotes,
+        totalPollVotes,
+        tsPollVotes,
+        percentage: percentage ? percentage.toFixed(2) : 0,
+        isDisabled: isPollEnded ? true : (timeSlot.isDisabled && tsPollVotes ? true : false),
+        isPollEnded,
+        isCurrentTimeSlot: timeSlot.isCurrentTimeSlot,
+        action: isPollEnded
+          ? ""
+          : timeSlot.isCurrentTimeSlot
+            ? timeSlot.action
+            : tsPollVotes
+              ? ""
+              : "add",
+      };
+    })
+    tableData.reverse();
+    
     return {
-      id: String(boothDetails.boothId),
+      id: `booth-${boothIndex}-${boothDetails.boothId}`,
       label: `Booth - ${boothDetails.boothId}`,
       totalVotes,
       content: (
-        <div className="p-4">
+        <div className="p-1">
           {totalVotes ? (
             <CountTable
               data={tableData}
               totalVotes={totalVotes}
-              onAddClick={async ({ timeSlot, votes }) => {
+              boothName={boothDetails.boothName}
+              onAddClick={async ({ timeSlot, timeSlotId, votes }) => {
                 if (!bootAgentInfoRes) return;
+                // Derive tsPollVotes as current noOfVotesPolled minus previous noOfVotesPolled
+                const currentIndex = timeSlots.findIndex(
+                  (slot) => `booth_${boothData.boothpollId}_${slot.id}` === timeSlotId
+                );
+                const previousVotePoll =
+                  currentIndex > 0 ? votePollList[currentIndex - 1] : undefined;
+                debugger;
+                const previousTotal = previousVotePoll?.totalPollVotes ?? 0;
+                const currentTotal = votes;
+
+                if (currentTotal < previousTotal) {
+                  window.alert("Votes polled cannot be less than previous total.");
+                  return;
+                }
+
+                const tsPollVotes = currentTotal - previousTotal;
+
                 const payload = buildSavePayload(
                   bootAgentInfoRes,
                   boothData as BoothPollInfo,
                   timeSlot,
-                  votes
+                  timeSlotId,
+                  tsPollVotes,
+                  currentTotal
                 );
 
                 try {
@@ -216,7 +216,7 @@ export const BoothDataPage = () => {
             <p>No polling results for this booth.</p>
           )}
 
-          <div className="mt-6">
+          {/* <div className="mt-6">
             <div className="mb-3 flex items-center gap-2">
               <span className="h-1 w-6 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
@@ -251,24 +251,32 @@ export const BoothDataPage = () => {
                   <span className="mb-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
                     Booth Name
                   </span>
-                  {/* <span className="truncate text-sm font-bold tracking-tight">
+                  <span className="truncate text-sm font-bold tracking-tight">
                     {boothDetails.boothName}
-                  </span> */}
+                  </span>
                   <span className="text-sm font-bold tracking-tight leading-snug">
                   {boothDetails.boothName}
                 </span>
                 </div>
             </div>
-          </div>
+          </div> */}
         </div>
       ),
     };
   });
 
+  const effectiveActiveTab = activeTabId && tabs.some((t) => t.id === activeTabId)
+    ? activeTabId
+    : tabs[0]?.id ?? "";
+
   return (
     <div className="container mx-auto py-2 md:py-8">
       <BoothAgentInfo info={boothInfoForHeader} partyName={bootAgentInfoRes.partyName} />
-      <TabComponent tabs={tabs} />
+      <TabComponent
+        tabs={tabs}
+        activeTab={effectiveActiveTab}
+        onActiveTabChange={setActiveTabId}
+      />
     </div>
   );
 };

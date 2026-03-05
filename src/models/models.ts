@@ -14,6 +14,9 @@ export interface Tab {
 export interface TabComponentProps {
   tabs: Tab[];
   defaultActiveTab?: string;
+  /** When provided, tab selection is controlled by the parent (survives refetch). */
+  activeTab?: string;
+  onActiveTabChange?: (tabId: string) => void;
   variant?: 'default' | 'pills';
 }
 
@@ -26,11 +29,14 @@ export interface VoteCountProps {
 
 // Table Data Interfaces for Vote Count Poll Table
 export interface TableData {
-  id: string;
-  timeSlot: string;
+  timeSlotId: string;
+  timeSlotLabel: string;
   noOfVotesPolled: number;
+  totalPollVotes: number;
+  tsPollVotes: number;
   percentage: number | string;
   isDisabled: boolean;
+  isPollEnded?: boolean;
   isCurrentTimeSlot?: boolean
   action?: string;
 }
@@ -38,12 +44,13 @@ export interface TableData {
 export interface CountTableProps {
   data: TableData[];
   totalVotes?: number; // Booth-specific total (not per time slot)
+  boothName?: string;
   /**
    * Optional callback invoked when the "Add" button is clicked
    * for the current time slot row. Gives the time slot label and
    * the number of votes entered in the UI.
    */
-  onAddClick?: (args: { timeSlot: string; votes: number }) => void;
+  onAddClick?: (args: { timeSlot: string; timeSlotId: string; votes: number }) => void;
 }
 
 // Quantity Counter Interfaces
@@ -103,7 +110,9 @@ export interface VotePoll {
   paramId: string;
   paramName: string;
   timeSlot: string;
+  timeSlotId?: string;
   tsPollVotes: number;
+  totalPollVotes: number;
   createdUser: string;
 }
 

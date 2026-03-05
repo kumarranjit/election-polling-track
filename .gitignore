@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+deploy-folder.zip
+deploy-folder/
+dist.zip
+my_app.zip
+my_app/
 
 # Editor directories and files
 .vscode/*

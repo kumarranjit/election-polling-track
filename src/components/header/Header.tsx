@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { user, mobileNumber, isAuthReady } = useAuth();
+
+  const displayName =
+    (isAuthReady ? user?.agentName : null) ??
+    (isAuthReady ? mobileNumber : null) ??
+    "—";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -103,7 +110,7 @@ const Header: React.FC = () => {
               Get Started
             </button> */}
             <div className="relative group flex items-center space-x-2">
-              <span className="text-gray-700">Sakthi sivin</span>
+              <span className="text-gray-700">{displayName}</span>
               <button className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -182,7 +189,7 @@ const Header: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
-                <span className="text-gray-700 font-medium">Sakthi sivin</span>
+                <span className="text-gray-700 font-medium">{displayName}</span>
               </div>
             </div>
           </nav>

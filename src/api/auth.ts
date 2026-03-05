@@ -4,43 +4,77 @@
  */
 import { request } from "./client";
 
-/** Send OTP endpoint – update path when backend is ready */
-const SEND_OTP_PATH = "auth/send-otp";
+/** Send OTP endpoint – matches /api/election/auth/sendOTP */
+const SEND_OTP_PATH = "auth/sendOTP";
 
-/** Verify OTP endpoint – update path when backend is ready */
-const VERIFY_OTP_PATH = "auth/verify-otp";
+/** Verify OTP endpoint – matches /api/election/auth/verifyOTP */
+const VERIFY_OTP_PATH = "auth/verifyOTP";
 
 export interface SendOtpBody {
-  mobile: string;
+  phoneNumber: string;
 }
 
 export interface SendOtpResponse {
-  success?: boolean;
-  message?: string;
+  ChallengeName?: string;
+  ChallengeParameters?: {
+    USERNAME?: string;
+    challengeType?: string;
+  };
+  Session?: string;
+  session?: string;
+  /** Some backends wrap the payload */
+  data?: SendOtpResponse;
+  result?: SendOtpResponse;
 }
 
 export interface VerifyOtpBody {
-  mobile: string;
-  otp: string;
+  phoneNumber: string;
+  otpAnswer: string;
+  session: string;
 }
 
+/** verifyOTP API success response – agent/user data, available globally via AuthContext. */
 export interface VerifyOtpResponse {
-  success?: boolean;
-  message?: string;
+  agentId: number;
+  agentName: string;
+  agentMobile: string;
+  roleId: number;
+  roleName: string;
+  flag: number;
+  activeFlag: number;
+  stateId: number;
+  stateName: string;
+  districtId: number;
+  districtName: string;
+  consId: number;
+  consName: string;
+  createDate: string;
+  createdUser: string;
+  lastUpdatedDate: string | null;
+  updatedUser: string | null;
 }
 
+/** Sends OTP to the given Indian mobile (10 digits). 
+ * Request uses phoneNumber with country code 91. */
 export async function sendOtp(mobile: string) {
+  const phoneNumber = mobile.startsWith("91") ? mobile : `91${mobile}`;
   return request<SendOtpResponse>({
     method: "POST",
     path: SEND_OTP_PATH,
-    body: { mobile } as SendOtpBody,
+    body: { phoneNumber } as SendOtpBody,
   });
 }
 
-export async function verifyOtp(mobile: string, otp: string) {
+/** Verifies OTP with the backend. Requires session from sendOTP response. */
+export async function verifyOtp(mobile: string, otp: string, session: string) {
+  const phoneNumber = mobile.startsWith("91") ? mobile : `91${mobile}`;
   return request<VerifyOtpResponse>({
     method: "POST",
     path: VERIFY_OTP_PATH,
-    body: { mobile, otp } as VerifyOtpBody,
+    body: {
+      phoneNumber,
+      otpAnswer: otp,
+      session,
+    } as VerifyOtpBody,
   });
 }
