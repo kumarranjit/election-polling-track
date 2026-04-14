@@ -59,10 +59,10 @@ const Header: React.FC = () => {
       ></div>
 
       <header
-        className={`fixed top-0 left-0 right-0 z-50 shadow-lg transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-gray-100 ${
           isScrolled
-            ? 'bg-white/90 backdrop-blur-md shadow-lg'
-            : 'bg-transparent backdrop-blur-sm'
+            ? 'bg-white/95 backdrop-blur-md shadow-md'
+            : 'bg-white/98 backdrop-blur-sm'
         }`}
       >
         <div className="container mx-auto px-4 py-3 flex items-center justify-between relative">

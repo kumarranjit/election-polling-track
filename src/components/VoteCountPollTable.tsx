@@ -26,7 +26,7 @@ const CountPollTable: React.FC<CountTableProps> = ({ data, totalVotes = 0, booth
 
   return (
     <>
-    <div className="-mx-1 sm:mx-0 mb-1 rounded-lg border border-gray-200 bg-white px-1 py-1 shadow-sm ring-1 ring-gray-900/5">
+    <div className="-mx-1 sm:mx-0 mb-1 border border-gray-200 bg-white px-2 py-1 shadow-sm ring-1 ring-gray-900/5">
       <div className="grid grid-cols-5 items-center gap-2">
         <div className="col-span-1">
           <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
