@@ -5,6 +5,7 @@ import { Route, Routes, Navigate, Outlet } from "react-router-dom";
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Contact from "./pages/contact/Contact";
+import MultiBLAEntry from "./pages/multi-bla-entry/MultiBLAEntry"
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const ProtectedRoute = () => {
@@ -29,9 +30,9 @@ function App() {
       <div className="min-h-screen flex flex-col">
         <Header />
         {/* Hero Section */}
-        <main className="flex-1 pt-16 pb-4 bg-white">
-          {/* Adjust pt for header height, pb for footer */}
-          <div className="container mx-auto px-4 pt-4 pb-8">
+        <main className="flex-1 pt-[5.5rem] pb-4 bg-white">
+          {/* pt clears fixed header (logo ~64px + py-3); minimal gap */}
+          <div className="container mx-auto px-4 pt-2 pb-8">
             <Routes>
               <Route path="/" element={<Login />} />
 
@@ -39,6 +40,7 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/home" element={<Home />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/multi" element={<MultiBLAEntry />} />
               </Route>
             </Routes>
           </div>

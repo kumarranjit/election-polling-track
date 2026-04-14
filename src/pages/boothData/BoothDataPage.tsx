@@ -270,7 +270,7 @@ export const BoothDataPage = () => {
     : tabs[0]?.id ?? "";
 
   return (
-    <div className="container mx-auto py-2 md:py-8">
+    <div className="container mx-auto pt-2 pb-6 md:pt-4 md:pb-8">
       <BoothAgentInfo info={boothInfoForHeader} partyName={bootAgentInfoRes.partyName} />
       <TabComponent
         tabs={tabs}

@@ -6,4 +6,13 @@
   .animation-delay-150 {
     animation-delay: 150ms;
   }
+  /* Hide number input spinners but keep type="number" for numeric-only input */
+  .no-number-spinner::-webkit-inner-spin-button,
+  .no-number-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-number-spinner {
+    -moz-appearance: textfield;
+  }
 }

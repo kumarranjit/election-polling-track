@@ -34,7 +34,7 @@ const BoothAgentInfo = ({ info, partyName }: BoothAgentInfoProps) => {
     <section className="mb-2 w-full">
       {/* Header (no card) */}
       <div className="flex items-center gap-3 px-1 py-1 sm:px-0">
-        <span className="h-9 w-1 rounded-full bg-gradient-to-b from-emerald-500 to-violet-500" />
+        <span className="h-9 w-1 shrink-0 rounded-full bg-gradient-to-b from-emerald-500 to-violet-500" />
         <p className={`min-w-0 flex-1 truncate text-xs font-extrabold uppercase tracking-[0.18em] ${getPartyColorClass(partyName)}`}>
           {candidateHeading}
         </p>
@@ -42,8 +42,7 @@ const BoothAgentInfo = ({ info, partyName }: BoothAgentInfoProps) => {
           <img
             src={partyLogoSrc}
             alt={partyName ? `${partyName} logo` : "Party logo"}
-            className="shrink-0 object-contain opacity-90"
-            style={{ width: "15%", height: "80%" }}
+            className="h-10 w-10 shrink-0 object-contain opacity-90 sm:h-12 sm:w-12"
           />
         )}
       </div>
